@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
 import InstallPrompt from './components/InstallPrompt'
+import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Clients from './pages/Clients'
 import Vehicles from './pages/Vehicles'
@@ -11,23 +13,53 @@ import Reports from './pages/Reports'
 import Hours from './pages/Hours'
 import './index.css'
 
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white/30 text-sm">Cargando...</div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
+}
+
+function AppRoutes() {
+  const { user } = useAuth()
+
+  return (
+    <Routes>
+      <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
+      <Route path="/register" element={user ? <Navigate to="/" replace /> : <Login />} />
+      <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/clients" element={<Clients />} />
+        <Route path="/vehicles" element={<Vehicles />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/invoices" element={<Invoices />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/hours" element={<Hours />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
+}
+
 function App() {
   return (
     <Router>
-      <InstallPrompt />
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/clients" element={<Clients />} />
-          <Route path="/vehicles" element={<Vehicles />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/invoices" element={<Invoices />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/hours" element={<Hours />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <AuthProvider>
+        <InstallPrompt />
+        <AppRoutes />
+      </AuthProvider>
     </Router>
   )
 }

@@ -1,0 +1,17 @@
+{
+  "name": "dev-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scripts reutilizables para informes PDF y reports de sesion",
+  "scripts": {
+    "informe": "node generar-informe.mjs",
+    "changelog": "node generate-changelog-pdf.cjs",
+    "mejoras": "node generate-improvements-pdf.cjs",
+    "preguntas": "node generate-questions-pdf.cjs",
+    "estimacion": "node generate-estimate-pdf.cjs",
+    "all": "node generate-changelog-pdf.cjs && node generate-improvements-pdf.cjs && node generate-questions-pdf.cjs && node generate-estimate-pdf.cjs"
+  },
+  "dependencies": {
+    "jspdf": "^4.1.0"
+  }
+}

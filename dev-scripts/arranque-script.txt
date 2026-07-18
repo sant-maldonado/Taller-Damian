@@ -1,0 +1,12 @@
+# Copiar la carpeta
+cp -r C:\Dev\Proyectos\dev-scripts C:\Dev\TuProyecto\scripts
+
+# Instalar deps
+cd scripts && npm install
+
+# Editar el CONFIG de cada script (projectName, secciones, métricas)
+# Ejecutar:
+npm run informe      # HTML desde AGENTS.md
+npm run changelog    # PDF de sesión
+npm run mejoras      # PDF de mejoras
+npm run preguntas    # PDF de preguntas
