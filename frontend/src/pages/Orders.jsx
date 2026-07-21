@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { orders as ordersApi, vehicles as vehiclesApi, groq as groqApi } from '../services/api-neon'
+import { orders as ordersApi, vehicles as vehiclesApi, services as servicesApi, groq as groqApi } from '../services/api-neon'
 import { useAuth } from '../context/AuthContext'
 import { Modal, Input, Select, Textarea, StatusBadge } from '../components/ui'
 import { formatDate, formatCurrency } from '../utils/formatters'

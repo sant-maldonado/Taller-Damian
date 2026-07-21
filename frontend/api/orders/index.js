@@ -92,10 +92,27 @@ const updateOrder = requirePermission('orders.update')(async (req, res) => {
   if (req.user.role === 'client') return res.status(403).json({ error: 'No tenés permisos para editar' });
 
   try {
-    const { id, vehicle_id, status, description, mileage, next_service_date, next_service_km, notes, assigned_to } = req.body;
+    const { id, ...data } = req.body;
     if (!id) return res.status(400).json({ error: 'ID requerido' });
 
-    const result = await sql`UPDATE orders SET vehicle_id = ${vehicle_id}, status = ${status}, description = ${description}, mileage = ${mileage}, next_service_date = ${next_service_date}, next_service_km = ${next_service_km}, notes = ${notes}, assigned_to = ${assigned_to}, updated_at = NOW() WHERE id = ${id} RETURNING *`;
+    const allowedFields = ['status', 'description', 'mileage', 'notes', 'vehicle_id', 'next_service_date', 'next_service_km', 'assigned_to'];
+    const sets = [];
+    const params = [];
+    let idx = 1;
+
+    for (const field of allowedFields) {
+      if (data[field] !== undefined) {
+        sets.push(`${field} = $${idx}`);
+        params.push(data[field]);
+        idx++;
+      }
+    }
+    if (sets.length === 0) return res.status(400).json({ error: 'No hay campos para actualizar' });
+
+    sets.push(`updated_at = NOW()`);
+    params.push(id);
+
+    const result = await sql.query(`UPDATE orders SET ${sets.join(', ')} WHERE id = $${idx} RETURNING *`, params);
 
     if (result.length === 0) return res.status(404).json({ error: 'Orden no encontrada' });
 
