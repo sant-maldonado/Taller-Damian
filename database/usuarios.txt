@@ -1,0 +1,44 @@
+============================================================
+TALLER DAMIAN - USUARIOS DEL SISTEMA
+============================================================
+Contraseña universal: workshop2026
+============================================================
+
+ROL: ADMIN
+------------------------------------------------------------
+admin@taller.com          | Administrador   | +54 11 5555-0001
+admin2@taller.com         | Carlos Admin     | +54 11 5555-0002
+admin3@taller.com         | María Admin      | +54 11 5555-0003
+
+ROL: MANAGER
+------------------------------------------------------------
+gerente1@taller.com       | Roberto Gerente  | +54 11 5555-0010
+gerente2@taller.com       | Laura Gerente    | +54 11 5555-0011
+
+ROL: MECHANIC
+------------------------------------------------------------
+mecanico1@taller.com      | Juan Mecánico    | +54 11 5555-0020
+mecanico2@taller.com      | Pedro Mecánico   | +54 11 5555-0021
+mecanico3@taller.com      | Diego Mecánico   | +54 11 5555-0022
+
+ROL: CLIENT
+------------------------------------------------------------
+cliente1@email.com        | Martín López     | +54 11 6666-0001
+cliente2@email.com        | Lucía García     | +54 11 6666-0002
+cliente3@email.com        | Fernando Ruiz    | +54 11 6666-0003
+cliente4@email.com        | Camila Torres    | +54 11 6666-0004
+cliente5@email.com        | Rodrigo Díaz     | +54 11 6666-0005
+
+ROL: VIEWER
+------------------------------------------------------------
+viewer1@taller.com        | Ana Viewer       | +54 11 5555-0030
+
+============================================================
+PERMISOS POR ROL
+============================================================
+ADMIN:    Acceso total al sistema
+MANAGER:  Gestión de clientes, vehículos, órdenes, facturas, reportes
+MECHANIC: Ver todo, registrar horas y fotos
+CLIENT:   Ver sus propios vehículos y órdenes
+VIEWER:   Solo lectura en todo
+============================================================
