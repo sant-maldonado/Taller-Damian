@@ -131,16 +131,16 @@ export default function Orders() {
 
     const recognition = new SpeechRecognition()
     recognition.lang = 'es-AR'
-    recognition.continuous = true
-    recognition.interimResults = true
+    recognition.continuous = false
+    recognition.interimResults = false
     recognitionRef.current = recognition
 
     recognition.onresult = (event) => {
-      let transcript = ''
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          setForm(prev => ({ ...prev, description: (prev.description + ' ' + event.results[i][0].transcript).trim() }))
+        }
       }
-      setForm(prev => ({ ...prev, description: prev.description + transcript }))
     }
 
     recognition.onerror = () => { setIsListening(false) }
@@ -218,7 +218,7 @@ export default function Orders() {
       {!isClient && (
         <Modal open={showNew} onClose={() => setShowNew(false)} title="Nueva orden de trabajo" wide>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Select label="Vehículo *" value={form.vehicle_id} onChange={(e) => setForm({ ...form, vehicle_id: e.target.value })} required>
+            <Select label="Vehículo *" value={form.vehicle_id} onChange={(e) => setForm({ ...form, vehicle_id: e.target.value })} required className="bg-white/[0.06] text-white">
               <option value="">Seleccionar vehículo</option>
               {vehicles.map(v => <option key={v.id} value={v.id}>{v.plate} — {v.brand} {v.model}</option>)}
             </Select>
