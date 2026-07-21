@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd frontend && npm ci && npx vite build",
-  "outputDirectory": "frontend/dist",
+  "buildCommand": "npx vite build",
+  "outputDirectory": "dist",
   "framework": null,
   "nodeVersion": "20.x",
   "rewrites": [
