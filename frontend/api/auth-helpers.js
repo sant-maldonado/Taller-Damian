@@ -54,4 +54,14 @@ function requirePermission(permission) {
   };
 }
 
-module.exports = { generateToken, verifyToken, authMiddleware, requirePermission, JWT_SECRET };
+async function getClientIdForUser(userId) {
+  const sql = require('./db');
+  const result = await sql`
+    SELECT c.id FROM clients c
+    JOIN users u ON u.email = c.email
+    WHERE u.id = ${userId}
+  `;
+  return result.length > 0 ? result[0].id : null;
+}
+
+module.exports = { generateToken, verifyToken, authMiddleware, requirePermission, JWT_SECRET, getClientIdForUser };

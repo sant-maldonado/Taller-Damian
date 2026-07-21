@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
-import { getClients, getVehicles, getOrders, getInvoices, getServiceCatalog } from '../services/api'
+import { clients as clientsApi, vehicles as vehiclesApi, orders as ordersApi, invoices as invoicesApi, services as servicesApi } from '../services/api-neon'
 import { formatCurrency } from '../utils/formatters'
 
 const COLORS = ['#fafafa', '#a1a1aa', '#71717a', '#52525b']
@@ -15,12 +15,17 @@ export default function Reports() {
 
   async function load() {
     try {
-      const [cl, ve, or, inv, cat] = await Promise.all([getClients(), getVehicles(), getOrders(), getInvoices(), getServiceCatalog()])
-      setStats({ clients: cl.length, vehicles: ve.length, orders: or.length, revenue: inv.reduce((s, i) => s + parseFloat(i.total), 0) })
+      const [clRes, veRes, orRes, invRes, catRes] = await Promise.all([clientsApi.list(), vehiclesApi.list(), ordersApi.list(), invoicesApi.list(), servicesApi.list()])
+      const cl = clRes.items || []
+      const ve = veRes.items || []
+      const or = orRes.items || []
+      const inv = invRes.items || []
+      const cat = catRes.items || []
+      setStats({ clients: cl.length, vehicles: ve.length, orders: or.length, revenue: inv.reduce((s, i) => s + parseFloat(i.total || 0), 0) })
       const sc = {}; or.forEach(o => { sc[o.status] = (sc[o.status] || 0) + 1 })
       setStatusData(Object.entries(sc).map(([n, v]) => ({ name: n === 'PENDING' ? 'Pendiente' : n === 'IN_PROGRESS' ? 'En progreso' : 'Completado', value: v })))
       setServiceData(cat.slice(0, 6).map(s => ({ name: s.name.length > 18 ? s.name.slice(0, 18) + '...' : s.name, value: Math.floor(Math.random() * 12) + 1 })))
-      const mr = {}; inv.forEach(i => { const m = new Date(i.created_at).toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }); mr[m] = (mr[m] || 0) + parseFloat(i.total) })
+      const mr = {}; inv.forEach(i => { const m = new Date(i.created_at).toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }); mr[m] = (mr[m] || 0) + parseFloat(i.total || 0) })
       setRevenueData(Object.entries(mr).map(([n, t]) => ({ name: n, total: t })))
     } catch(e) { console.error(e) }
   }

@@ -78,6 +78,9 @@ CREATE TABLE vehicles (
   color TEXT,
   vin TEXT,
   client_id UUID REFERENCES clients(id) ON DELETE CASCADE NOT NULL,
+  current_km INTEGER,
+  engine_type TEXT,
+  transmission TEXT,
   created_by UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

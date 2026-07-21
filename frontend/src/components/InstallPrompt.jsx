@@ -6,6 +6,7 @@ export default function InstallPrompt() {
 
   useEffect(() => {
     function handler(e) {
+      if (localStorage.getItem('install_shown')) return
       e.preventDefault()
       setDeferred(e)
       setShow(true)
@@ -19,7 +20,8 @@ export default function InstallPrompt() {
   async function install() {
     if (!deferred) return
     deferred.prompt()
-    await deferred.userChoice
+    const { outcome } = await deferred.userChoice
+    if (outcome === 'accepted') localStorage.setItem('install_shown', '1')
     setDeferred(null)
     setShow(false)
   }

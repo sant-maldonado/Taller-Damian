@@ -12,7 +12,9 @@ export default defineConfig({
       includeAssets: ['favicon.svg'],
       manifest: false,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}']
+        globPatterns: ['**/*.{js,css,svg,png,woff2}'],
+        cleanupOutdatedCaches: true,
+        navigateFallback: null,
       }
     })
   ],

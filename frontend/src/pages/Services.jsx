@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
-import { getServiceCatalog, addServiceCatalogItem, deleteServiceCatalogItem } from '../services/api'
+import { services as servicesApi } from '../services/api-neon'
+import { useAuth } from '../context/AuthContext'
 import { Modal, Input, Textarea, EmptyState } from '../components/ui'
 
 export default function Services() {
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'admin'
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -10,9 +13,9 @@ export default function Services() {
 
   useEffect(() => { load() }, [])
 
-  async function load() { try { setLoading(true); setServices(await getServiceCatalog()) } catch(e) { console.error(e) } finally { setLoading(false) } }
-  async function handleSubmit(e) { e.preventDefault(); try { await addServiceCatalogItem({ ...form, default_price: parseFloat(form.default_price) }); setShowModal(false); setForm({ name: '', description: '', default_price: '', category: '' }); load() } catch(err) { alert(err.message) } }
-  async function handleDelete(id) { if (!confirm('¿Eliminar servicio?')) return; try { await deleteServiceCatalogItem(id); load() } catch(err) { alert(err.message) } }
+  async function load() { try { setLoading(true); const res = await servicesApi.list(); setServices(res.items || []) } catch(e) { console.error(e) } finally { setLoading(false) } }
+  async function handleSubmit(e) { e.preventDefault(); try { await servicesApi.create({ ...form, default_price: parseFloat(form.default_price) }); setShowModal(false); setForm({ name: '', description: '', default_price: '', category: '' }); load() } catch(err) { alert(err.message) } }
+  async function handleDelete(id) { if (!confirm('¿Eliminar servicio?')) return; try { await servicesApi.remove(id); load() } catch(err) { alert(err.message) } }
 
   const categories = [...new Set(services.map(s => s.category).filter(Boolean))]
 
@@ -23,7 +26,7 @@ export default function Services() {
           <h1 className="page-title">Servicios</h1>
           <p className="page-subtitle">{services.length} servicios en catálogo</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="btn-primary">+ Nuevo servicio</button>
+        {isAdmin && <button onClick={() => setShowModal(true)} className="btn-primary">+ Nuevo servicio</button>}
       </div>
 
       {loading ? <div className="py-16 text-center text-white/30 text-sm">Cargando...</div>

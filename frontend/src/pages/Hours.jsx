@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getHoursTracking, addHoursTracking, deleteHoursTracking, getOrders } from '../services/api'
+import { hours as hoursApi, orders as ordersApi } from '../services/api-neon'
 import { formatDate, formatHours } from '../utils/formatters'
 import { Modal, Input, Select, EmptyState } from '../components/ui'
 
@@ -13,11 +13,19 @@ export default function Hours() {
 
   useEffect(() => { load(); loadOrders() }, [filterDate])
 
-  async function load() { try { setLoading(true); setEntries(await getHoursTracking(null, filterDate || null, filterDate || null)) } catch(e) { console.error(e) } finally { setLoading(false) } }
-  async function loadOrders() { try { setOrders(await getOrders()) } catch(e) { console.error(e) } }
+  async function load() {
+    try {
+      setLoading(true)
+      const params = {}
+      if (filterDate) { params.date = filterDate }
+      const res = await hoursApi.list(params)
+      setEntries(res.items || [])
+    } catch(e) { console.error(e) } finally { setLoading(false) }
+  }
+  async function loadOrders() { try { const res = await ordersApi.list(); setOrders(res.items || []) } catch(e) { console.error(e) } }
 
-  async function handleSubmit(e) { e.preventDefault(); try { await addHoursTracking({ order_id: form.order_id || null, description: form.description, hours: parseFloat(form.hours), date: form.date }); setShowModal(false); setForm({ order_id: '', description: '', hours: '', date: new Date().toISOString().split('T')[0] }); load() } catch(err) { alert(err.message) } }
-  async function handleDelete(id) { if (!confirm('¿Eliminar registro?')) return; try { await deleteHoursTracking(id); load() } catch(err) { alert(err.message) } }
+  async function handleSubmit(e) { e.preventDefault(); try { await hoursApi.create({ order_id: form.order_id || null, description: form.description, hours: parseFloat(form.hours), date: form.date }); setShowModal(false); setForm({ order_id: '', description: '', hours: '', date: new Date().toISOString().split('T')[0] }); load() } catch(err) { alert(err.message) } }
+  async function handleDelete(id) { if (!confirm('¿Eliminar registro?')) return; try { await hoursApi.remove(id); load() } catch(err) { alert(err.message) } }
 
   const totalH = entries.reduce((s, e) => s + parseFloat(e.hours), 0)
 

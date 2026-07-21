@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,7 +16,7 @@ export default function Login() {
     setLoading(true)
 
     try {
-      await login(email, password)
+      await login(identifier, password)
       navigate('/')
     } catch (err) {
       setError(err.message)
@@ -49,13 +49,13 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[11px] font-medium text-white/40 uppercase tracking-wider mb-1.5">Email</label>
+              <label className="block text-[11px] font-medium text-white/40 uppercase tracking-wider mb-1.5">Email o DNI</label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 className="input"
-                placeholder="admin@taller.com"
+                placeholder="30123456"
                 required
               />
             </div>
@@ -82,7 +82,9 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-4 text-center">
+          <p className="text-[11px] text-white/25 mt-4 text-center">Clientes: ingresá tu DNI o patente del vehículo</p>
+
+          <div className="mt-3 text-center">
             <Link to="/register" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">
               ¿No tenés cuenta? Crear una
             </Link>

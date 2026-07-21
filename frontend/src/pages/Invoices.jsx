@@ -1,19 +1,22 @@
 import { useState, useEffect } from 'react'
-import { getInvoices, getOrderServices, getOrder } from '../services/api'
+import { useNavigate } from 'react-router-dom'
+import { invoices as invoicesApi } from '../services/api-neon'
+import { useAuth } from '../context/AuthContext'
 import { formatDate } from '../utils/formatters'
 
 export default function Invoices() {
+  const { user } = useAuth()
+  const isClient = user?.role === 'client'
+  const navigate = useNavigate()
   const [invoices, setInvoices] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => { load() }, [])
 
-  async function load() { try { setLoading(true); setInvoices(await getInvoices()) } catch(e) { console.error(e) } finally { setLoading(false) } }
+  async function load() { try { setLoading(true); const res = await invoicesApi.list(); setInvoices(res.items || []) } catch(e) { console.error(e) } finally { setLoading(false) } }
 
   async function handlePdf(inv) {
     try {
-      const order = await getOrder(inv.order_id)
-      const svcs = await getOrderServices(inv.order_id)
       const { default: PDFDoc } = await import('pdfkit')
       const doc = new PDFDoc({ margin: 50 })
       const chunks = []
@@ -26,32 +29,25 @@ export default function Invoices() {
       doc.fontSize(10).font('Helvetica').fillColor('#666')
       doc.text(`N° ${String(inv.invoice_number).padStart(5, '0')}`, { align: 'right' })
       doc.text(`Fecha: ${formatDate(inv.created_at)}`, { align: 'right' }).moveDown(1)
-      doc.fillColor('#000').fontSize(12).font('Helvetica-Bold').text('Cliente').moveDown(0.3)
+      doc.fillColor('#000').fontSize(12).font('Helvetica-Bold').text('Detalle').moveDown(0.3)
       doc.fontSize(10).font('Helvetica')
-      doc.text(`Nombre: ${order.vehicles?.clients?.name || '-'}`)
-      doc.text(`DNI: ${order.vehicles?.clients?.dni || '-'}`)
-      doc.text(`Teléfono: ${order.vehicles?.clients?.phone || '-'}`).moveDown(0.8)
-      doc.fontSize(12).font('Helvetica-Bold').text('Vehículo').moveDown(0.3)
-      doc.fontSize(10).font('Helvetica')
-      doc.text(`Patente: ${order.vehicles?.plate || '-'}`)
-      doc.text(`${order.vehicles?.brand} ${order.vehicles?.model} — ${order.vehicles?.year}`).moveDown(0.8)
-      doc.fontSize(12).font('Helvetica-Bold').text('Servicios').moveDown(0.5)
-      let y = doc.y; doc.fontSize(9).font('Helvetica').fillColor('#999')
-      doc.text('SERVICIO', 50, y, { width: 260 }); doc.text('PRECIO', 340, y, { width: 110, align: 'right' })
-      y += 15; doc.moveTo(50, y).lineTo(450, y).strokeColor('#ccc').stroke(); y += 8
-      doc.fillColor('#000')
-      svcs.forEach(s => { doc.fontSize(10).font('Helvetica').text(s.name, 50, y, { width: 260 }); doc.text(`$${parseFloat(s.price).toLocaleString('es-AR')}`, 340, y, { width: 110, align: 'right' }); y += 18 })
-      y += 2; doc.moveTo(50, y).lineTo(450, y).strokeColor('#ccc').stroke(); y += 10
-      doc.fontSize(13).font('Helvetica-Bold').text('TOTAL', 50, y, { width: 260 }); doc.text(`$${parseFloat(inv.total).toLocaleString('es-AR')}`, 340, y, { width: 110, align: 'right' })
+      doc.text(`Orden: ${inv.order_id || '-'}`).moveDown(0.8)
+      doc.fontSize(13).font('Helvetica-Bold').text('TOTAL', 50, doc.y, { width: 260 })
+      doc.text(`$${parseFloat(inv.total || 0).toLocaleString('es-AR')}`, 340, doc.y - 15, { width: 110, align: 'right' })
       doc.end()
     } catch(err) { alert('Error: ' + err.message) }
   }
 
   return (
     <div className="max-w-6xl">
-      <div className="mb-6">
-        <h1 className="page-title">Facturas</h1>
-        <p className="page-subtitle">{invoices.length} facturas emitidas</p>
+      <div className="flex items-center gap-3 mb-6">
+        {isClient && <button onClick={() => navigate('/')} className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors">
+          <svg className="w-4 h-4 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+        </button>}
+        <div>
+          <h1 className="page-title">Facturas</h1>
+          <p className="page-subtitle">{invoices.length} facturas emitidas</p>
+        </div>
       </div>
 
       <div className="card overflow-hidden">
