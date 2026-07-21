@@ -2,8 +2,5 @@
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "framework": null,
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/frontend/api/$1" },
-    { "source": "/((?!api/).*)", "destination": "/frontend/dist/index.html" }
-  ]
+  "nodeVersion": "20.x"
 }
