@@ -66,7 +66,11 @@ function createEndpoint(path) {
 export const clients = createEndpoint('clients');
 export const vehicles = createEndpoint('vehicles');
 vehicles.history = (id) => request(`/api/vehicles?id=${id}&action=history`);
-export const orders = createEndpoint('orders');
+export const orders = {
+  ...createEndpoint('orders'),
+  addService: (data) => request('/api/orders?action=add-service', { method: 'POST', body: JSON.stringify(data) }),
+  removeService: (id) => request(`/api/orders?action=remove-service&id=${id}`, { method: 'DELETE' }),
+};
 export const services = createEndpoint('services');
 export const invoices = createEndpoint('invoices');
 export const hours = createEndpoint('hours');

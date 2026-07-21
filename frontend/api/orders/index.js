@@ -4,6 +4,8 @@ const { authMiddleware, requirePermission, getClientIdForUser } = require('../au
 const sql = neon(process.env.DATABASE_URL);
 
 module.exports = async (req, res) => {
+  if (req.query.action === 'add-service' && req.method === 'POST') return addService(req, res);
+  if (req.query.action === 'remove-service' && req.method === 'DELETE') return removeService(req, res);
   switch (req.method) {
     case 'GET': return listOrders(req, res);
     case 'POST': return createOrder(req, res);
@@ -118,5 +120,33 @@ const deleteOrder = requirePermission('orders.delete')(async (req, res) => {
   } catch (error) {
     console.error('Delete order error:', error);
     return res.status(500).json({ error: 'Error al eliminar orden' });
+  }
+});
+
+const addService = requirePermission('orders.update')(async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
+
+  try {
+    const { order_id, name, price } = req.body;
+    if (!order_id || !name) return res.status(400).json({ error: 'order_id y name requeridos' });
+
+    const result = await sql`INSERT INTO order_services (order_id, name, price) VALUES (${order_id}, ${name}, ${price || 0}) RETURNING *`;
+    return res.status(201).json(result[0]);
+  } catch (error) {
+    console.error('Add service error:', error);
+    return res.status(500).json({ error: 'Error al agregar servicio' });
+  }
+});
+
+const removeService = requirePermission('orders.update')(async (req, res) => {
+  if (req.method !== 'DELETE') return res.status(405).json({ error: 'Método no permitido' });
+
+  try {
+    const { id } = req.query;
+    await sql`DELETE FROM order_services WHERE id = ${id}`;
+    return res.status(200).json({ message: 'Servicio eliminado' });
+  } catch (error) {
+    console.error('Remove service error:', error);
+    return res.status(500).json({ error: 'Error al eliminar servicio' });
   }
 });
