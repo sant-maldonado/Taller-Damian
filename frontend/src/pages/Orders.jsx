@@ -24,6 +24,7 @@ export default function Orders() {
   const [showNew, setShowNew] = useState(false)
   const [form, setForm] = useState({ vehicle_id: '', description: '', mileage: '', notes: '' })
   const [suggestedServices, setSuggestedServices] = useState([])
+  const [manualServices, setManualServices] = useState([])
   const [aiLoading, setAiLoading] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const recognitionRef = useRef(null)
@@ -57,8 +58,21 @@ export default function Orders() {
   function openNewModal() {
     setForm({ vehicle_id: '', description: '', mileage: '', notes: '' })
     setSuggestedServices([])
+    setManualServices([])
     loadVehicles()
     setShowNew(true)
+  }
+
+  function addManualService() {
+    setManualServices(prev => [...prev, { name: '', price: '0', checked: true }])
+  }
+
+  function updateManualService(index, field, value) {
+    setManualServices(prev => prev.map((s, i) => i === index ? { ...s, [field]: value } : s))
+  }
+
+  function removeManualService(index) {
+    setManualServices(prev => prev.filter((_, i) => i !== index))
   }
 
   async function handleSubmit(e) {
@@ -72,13 +86,17 @@ export default function Orders() {
         notes: form.notes || null,
       })
 
-      const confirmed = suggestedServices.filter(s => s.checked)
-      for (const svc of confirmed) {
-        await ordersApi.addService({ order_id: order.id, name: svc.name, price: parseFloat(svc.price) })
+      const allServices = [
+        ...suggestedServices.filter(s => s.checked),
+        ...manualServices.filter(s => s.name.trim()),
+      ]
+      for (const svc of allServices) {
+        await ordersApi.addService({ order_id: order.id, name: svc.name, price: parseFloat(svc.price || 0) })
       }
 
       setShowNew(false)
       setSuggestedServices([])
+      setManualServices([])
       load()
     } catch(err) { alert(err.message) }
   }
@@ -150,9 +168,10 @@ export default function Orders() {
     setSuggestedServices(prev => prev.map((s, i) => i === index ? { ...s, [field]: value } : s))
   }
 
-  const totalSuggested = suggestedServices
-    .filter(s => s.checked)
-    .reduce((sum, s) => sum + (parseFloat(s.price) || 0), 0)
+  const totalServices = [
+    ...suggestedServices.filter(s => s.checked),
+    ...manualServices.filter(s => s.name.trim()),
+  ].reduce((sum, s) => sum + (parseFloat(s.price) || 0), 0)
 
   const statusLabel = { PENDING: 'Pendiente', IN_PROGRESS: 'En progreso', COMPLETED: 'Completada', CANCELLED: 'Cancelada' }
 
@@ -269,6 +288,38 @@ export default function Orders() {
 
             <Input label="Kilometraje actual" type="number" value={form.mileage} onChange={(e) => setForm({ ...form, mileage: e.target.value })} placeholder="120000" />
 
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-medium text-white/40 uppercase tracking-wider">Servicios</span>
+                <button type="button" onClick={addManualService}
+                  className="text-[11px] text-sky-400/60 hover:text-sky-400 flex items-center gap-1 transition-colors">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                  Agregar servicio
+                </button>
+              </div>
+
+              {manualServices.length > 0 && (
+                <div className="space-y-1.5">
+                  {manualServices.map((svc, i) => (
+                    <div key={i} className="flex items-center gap-2 bg-white/[0.02] border border-white/[0.05] rounded-lg px-3 py-2">
+                      <input type="text" value={svc.name} onChange={(e) => updateManualService(i, 'name', e.target.value)}
+                        placeholder="Nombre del servicio"
+                        className="flex-1 bg-transparent text-[13px] text-white/70 border-none outline-none placeholder-white/20 focus:text-white" />
+                      <div className="flex items-center gap-1">
+                        <span className="text-[11px] text-white/20">$</span>
+                        <input type="number" value={svc.price} onChange={(e) => updateManualService(i, 'price', e.target.value)}
+                          className="w-24 bg-white/[0.04] border border-white/[0.08] rounded-lg px-2 py-1 text-[13px] text-white/60 text-right font-mono outline-none focus:border-sky-500/30 focus:text-white" />
+                      </div>
+                      <button type="button" onClick={() => removeManualService(i)}
+                        className="text-white/20 hover:text-red-400 transition-colors p-1">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {suggestedServices.length > 0 && (
               <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl overflow-hidden">
                 <div className="px-4 py-2.5 border-b border-white/[0.04]">
@@ -295,7 +346,7 @@ export default function Orders() {
                   <span className="text-[12px] text-white/30">
                     {suggestedServices.filter(s => s.checked).length} servicios seleccionados
                   </span>
-                  <span className="text-[14px] font-bold text-white/70">{formatCurrency(totalSuggested)}</span>
+                  <span className="text-[14px] font-bold text-white/70">{formatCurrency(totalServices)}</span>
                 </div>
                 <div className="px-4 py-2">
                   <button type="button" onClick={() => setSuggestedServices(suggestedServices.map(s => ({ ...s, checked: true })))}
