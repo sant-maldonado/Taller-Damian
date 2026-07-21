@@ -203,7 +203,15 @@ export default function Orders() {
                 </div>
                 <StatusBadge status={o.status} />
                 {!isClient && (
-                  <button onClick={(e) => { e.stopPropagation(); if(confirm('¿Eliminar orden?')) ordersApi.remove(o.id).then(load) }} className="btn-ghost text-red-400/30 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">Eliminar</button>
+                  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                    {['PENDING', 'IN_PROGRESS', 'COMPLETED'].map(s => (
+                      <button key={s} onClick={() => ordersApi.update({ id: o.id, status: s }).then(load)}
+                        className={`w-6 h-6 rounded-md text-[10px] font-semibold transition-all ${o.status === s ? 'bg-white/[0.15] text-white' : 'bg-white/[0.04] text-white/20 hover:text-white/40 hover:bg-white/[0.08]'}`}>
+                        {s === 'PENDING' ? 'P' : s === 'IN_PROGRESS' ? 'E' : 'C'}
+                      </button>
+                    ))}
+                    <button onClick={() => { if(confirm('¿Eliminar orden?')) ordersApi.remove(o.id).then(load) }} className="w-6 h-6 rounded-md bg-white/[0.04] text-red-400/30 hover:bg-red-500/20 hover:text-red-400 transition-all text-[12px] leading-none">&times;</button>
+                  </div>
                 )}
               </div>
             ))}
