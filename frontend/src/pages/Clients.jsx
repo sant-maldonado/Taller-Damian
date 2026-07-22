@@ -90,7 +90,7 @@ export default function Clients() {
                   </div>
                 </div>
                 {!isClient && (
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button onClick={() => openEdit(client)} className="btn-ghost">Editar</button>
                     <button onClick={() => handleDelete(client)} className="btn-ghost text-red-400/50 hover:text-red-400">Eliminar</button>
                   </div>

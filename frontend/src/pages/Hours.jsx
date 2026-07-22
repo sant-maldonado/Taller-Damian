@@ -65,7 +65,7 @@ export default function Hours() {
                   </div>
                 </div>
                 <div className="text-[14px] font-bold text-white font-mono mr-3">{formatHours(e.hours)}</div>
-                <button onClick={() => handleDelete(e.id)} className="btn-ghost text-red-400/30 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">Eliminar</button>
+                <button onClick={() => handleDelete(e.id)} className="btn-ghost text-red-400/30 hover:text-red-400 sm:opacity-0 sm:group-hover:opacity-100 transition-all">Eliminar</button>
               </div>
             ))}
           </div>

@@ -186,7 +186,7 @@ export default function Orders() {
         )}
       </div>
 
-      <div className="flex gap-1 mb-5 p-1 bg-white/[0.03] rounded-xl border border-white/[0.05] w-fit">
+      <div className="flex flex-wrap gap-1 mb-5 p-1 bg-white/[0.03] rounded-xl border border-white/[0.05] w-fit">
         {tabs.map(t => (
           <button key={t.key} onClick={() => setFilter(t.key)}
             className={`px-4 py-2 rounded-lg text-[12px] font-medium transition-all duration-200 ${filter === t.key ? 'bg-white/[0.1] text-white shadow-sm' : 'text-white/30 hover:text-white/50'}`}>
@@ -224,11 +224,11 @@ export default function Orders() {
                   <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                     {['PENDING', 'IN_PROGRESS', 'COMPLETED'].map(s => (
                       <button key={s} onClick={() => ordersApi.update({ id: o.id, status: s }).then(load)}
-                        className={`w-6 h-6 rounded-md text-[10px] font-semibold transition-all ${o.status === s ? 'bg-white/[0.15] text-white' : 'bg-white/[0.04] text-white/20 hover:text-white/40 hover:bg-white/[0.08]'}`}>
+                        className={`w-8 h-8 sm:w-6 sm:h-6 rounded-md text-[10px] font-semibold transition-all ${o.status === s ? 'bg-white/[0.15] text-white' : 'bg-white/[0.04] text-white/20 hover:text-white/40 hover:bg-white/[0.08]'}`}>
                         {s === 'PENDING' ? 'P' : s === 'IN_PROGRESS' ? 'E' : 'C'}
                       </button>
                     ))}
-                    <button onClick={() => { if(confirm('¿Eliminar orden?')) ordersApi.remove(o.id).then(load) }} className="w-6 h-6 rounded-md bg-white/[0.04] text-red-400/30 hover:bg-red-500/20 hover:text-red-400 transition-all text-[12px] leading-none">&times;</button>
+                    <button onClick={() => { if(confirm('¿Eliminar orden?')) ordersApi.remove(o.id).then(load) }} className="w-8 h-8 sm:w-6 sm:h-6 rounded-md bg-white/[0.04] text-red-400/30 hover:bg-red-500/20 hover:text-red-400 transition-all text-[12px] leading-none">&times;</button>
                   </div>
                 )}
               </div>

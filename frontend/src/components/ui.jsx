@@ -30,14 +30,14 @@ export function Modal({ open, onClose, title, children, wide }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
-      <div className={`relative w-full ${wide ? 'max-w-2xl' : 'max-w-md'} bg-[#0c0c0c] border border-white/[0.08] rounded-2xl shadow-2xl animate-in`}>
+      <div className={`relative w-full ${wide ? 'max-w-2xl' : 'max-w-md'} bg-[#0c0c0c] border border-white/[0.08] rounded-2xl shadow-2xl animate-in max-h-[90vh] flex flex-col`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
           <h2 className="text-[15px] font-semibold text-white">{title}</h2>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/[0.06] transition-all">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
-        <div className="px-6 py-5">{children}</div>
+        <div className="px-6 py-5 overflow-y-auto">{children}</div>
       </div>
     </div>
   )

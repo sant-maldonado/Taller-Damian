@@ -116,7 +116,7 @@ export default function Vehicles() {
                   </div>
                 </div>
                 {!isClient && (
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                     <button onClick={() => openEdit(v)} className="btn-ghost">Editar</button>
                     <button onClick={(e) => handleDelete(e, v)} className="btn-ghost text-red-400/50 hover:text-red-400">Eliminar</button>
                   </div>

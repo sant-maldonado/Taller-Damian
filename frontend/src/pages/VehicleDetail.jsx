@@ -230,11 +230,11 @@ export default function VehicleDetail() {
             <button onClick={() => { setShowChat(!showChat); if (!showChat) { setChatMessages([]); setSuggestedOrder(null) } }}
               className={`text-sm flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all ${showChat ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30' : 'btn-secondary'}`}>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
-              Asistente IA
+              <span className="hidden sm:inline">Asistente IA</span>
             </button>
           )}
           <button onClick={exportPDF} className="btn-secondary text-sm">
-            <svg className="w-4 h-4 mr-1.5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+            <svg className="w-4 h-4 sm:mr-1.5 sm:inline hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
             PDF
           </button>
         </div>
@@ -385,7 +385,7 @@ export default function VehicleDetail() {
       </div>
 
       <div className="mb-4">
-        <div className="flex items-center gap-1 p-1 bg-white/[0.03] rounded-xl w-fit">
+        <div className="flex items-center gap-1 p-1 bg-white/[0.03] rounded-xl w-fit flex-wrap">
           {tabs.map(t => (
             <button key={t.key} onClick={() => setStatusFilter(t.key)}
               className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${statusFilter === t.key ? 'bg-white/[0.1] text-white shadow-sm' : 'text-white/30 hover:text-white/50'}`}>
