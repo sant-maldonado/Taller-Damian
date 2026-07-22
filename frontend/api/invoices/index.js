@@ -1,6 +1,13 @@
 const { authMiddleware, requirePermission, getClientIdForUser } = require('../auth-helpers');
 
 module.exports = async (req, res) => {
+  const { action } = req.query;
+
+  if (action === 'list-hours') return listHours(req, res);
+  if (action === 'hours-create') return createHour(req, res);
+  if (action === 'hours-update') return updateHour(req, res);
+  if (action === 'hours-delete') return deleteHour(req, res);
+
   switch (req.method) {
     case 'GET': return listInvoices(req, res);
     case 'POST': return createInvoice(req, res);
@@ -9,6 +16,113 @@ module.exports = async (req, res) => {
     default: return res.status(405).json({ error: 'Método no permitido' });
   }
 };
+
+// ─── Hours ────────────────────────────────────────────────
+
+async function listHours(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Método no permitido' });
+
+  try {
+    const sql = require('../db');
+    const { date, search, limit = 100, offset = 0 } = req.query;
+    const lim = parseInt(limit, 10) || 100;
+    const off = parseInt(offset, 10) || 0;
+
+    let where = '';
+    const params = [];
+    let paramIdx = 1;
+
+    if (date) {
+      where = `WHERE h.date = $${paramIdx}`;
+      params.push(date);
+      paramIdx++;
+    }
+
+    if (search) {
+      const cond = `h.description ILIKE $${paramIdx}`;
+      where = where ? `${where} AND ${cond}` : `WHERE ${cond}`;
+      params.push(`%${search}%`);
+      paramIdx++;
+    }
+
+    const query = `
+      SELECT h.*, 
+        json_build_object(
+          'vehicles', json_build_object('plate', o_v.plate, 'brand', o_v.brand, 'model', o_v.model, 'client_id', o_v.client_id)
+        ) as orders
+      FROM hours_tracking h
+      LEFT JOIN orders o ON o.id = h.order_id
+      LEFT JOIN vehicles o_v ON o_v.id = o.vehicle_id
+      ${where}
+      ORDER BY h.date DESC, h.created_at DESC
+      LIMIT ${lim} OFFSET ${off}
+    `;
+    const items = params.length > 0 ? await sql.query(query, params) : await sql.query(query);
+
+    const countQuery = `SELECT COUNT(*)::int as total FROM hours_tracking h ${where}`;
+    const countResult = params.length > 0 ? await sql.query(countQuery, params) : await sql.query(countQuery);
+
+    return res.status(200).json({ items, total: countResult[0].total });
+  } catch (error) {
+    console.error('List hours error:', error);
+    return res.status(500).json({ error: 'Error al obtener registros de horas' });
+  }
+}
+
+async function createHour(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
+
+  try {
+    const sql = require('../db');
+    const { order_id, date, hours, description, hourly_rate } = req.body;
+    if (!date) return res.status(400).json({ error: 'Fecha es requerida' });
+
+    const result = await sql`INSERT INTO hours_tracking (order_id, date, hours, description, hourly_rate, created_by)
+      VALUES (${order_id || null}, ${date}, ${hours || 0}, ${description || ''}, ${hourly_rate || 0}, ${req.user.id}) RETURNING *`;
+
+    return res.status(201).json(result[0]);
+  } catch (error) {
+    console.error('Create hour error:', error);
+    return res.status(500).json({ error: 'Error al crear registro de horas' });
+  }
+}
+
+async function updateHour(req, res) {
+  if (req.method !== 'PUT') return res.status(405).json({ error: 'Método no permitido' });
+
+  try {
+    const sql = require('../db');
+    const { id, order_id, date, hours, description, hourly_rate } = req.body;
+    if (!id) return res.status(400).json({ error: 'ID requerido' });
+
+    const result = await sql`UPDATE hours_tracking SET order_id = ${order_id || null}, date = ${date}, hours = ${hours}, description = ${description}, hourly_rate = ${hourly_rate}, created_at = created_at WHERE id = ${id} RETURNING *`;
+    if (result.length === 0) return res.status(404).json({ error: 'Registro de horas no encontrado' });
+
+    return res.status(200).json(result[0]);
+  } catch (error) {
+    console.error('Update hour error:', error);
+    return res.status(500).json({ error: 'Error al actualizar registro de horas' });
+  }
+}
+
+async function deleteHour(req, res) {
+  if (req.method !== 'DELETE') return res.status(405).json({ error: 'Método no permitido' });
+
+  try {
+    const sql = require('../db');
+    const { id } = req.query;
+    const result = await sql`DELETE FROM hours_tracking WHERE id = ${id} RETURNING id`;
+
+    if (result.length === 0) return res.status(404).json({ error: 'Registro de horas no encontrado' });
+
+    return res.status(200).json({ message: 'Registro de horas eliminado' });
+  } catch (error) {
+    console.error('Delete hour error:', error);
+    return res.status(500).json({ error: 'Error al eliminar registro de horas' });
+  }
+}
+
+// ─── Invoices ─────────────────────────────────────────────
 
 const listInvoices = requirePermission('invoices.read')(async (req, res) => {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Método no permitido' });

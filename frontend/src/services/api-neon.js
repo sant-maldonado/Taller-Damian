@@ -73,9 +73,31 @@ export const orders = {
 };
 export const services = createEndpoint('services');
 export const invoices = createEndpoint('invoices');
-export const hours = createEndpoint('hours');
+export const hours = {
+  list: (params = {}) => {
+    const filtered = Object.fromEntries(Object.entries(params).filter(([, v]) => v != null && v !== ''));
+    const query = new URLSearchParams({ ...filtered, action: 'list-hours' }).toString();
+    return request(`/api/invoices?${query}`);
+  },
+  create: (data) =>
+    request('/api/invoices?action=hours-create', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (data) =>
+    request('/api/invoices?action=hours-update', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  remove: (id) =>
+    request(`/api/invoices?action=hours-delete&id=${id}`, {
+      method: 'DELETE',
+    }),
+};
 export const users = createEndpoint('users');
-export const roles = createEndpoint('role');
+export const roles = {
+  list: () => request('/api/users?action=list-roles'),
+};
 
 export const groq = {
   chat: (data) =>

@@ -68,3 +68,18 @@
 - **Estados ordenes**: botones P E C en lista de ordenes
 - **Servicios manuales**: sección en popup de nueva orden con agregar/remover
 - **AI button**: botón IA en input de descripción
+
+## Sesion 9: Testing + Code Cleanup + API Consolidation
+**Horas**: 5h
+- **Vitest + RTL + jsdom**: Framework de testing instalado y configurado
+- **105 tests**: formatters(39), crud(16), api-neon(14), ui-components(15), Login(6), Clients(7), Orders(8)
+- **Dead code eliminado**: api.js (277 líneas), supabase.js (10 líneas), seedData.js (135 líneas)
+- **formatters.js centralizado**: getStatusLabel, getStatusColor, engineLabel, transLabel — 8 páginas refactorizadas
+- **Loading component**: Reutilizado en 8 páginas
+- **Fusión API endpoints**: hours→invoices (?action=list-hours), role→users (?action=list-roles)
+- **Vercel functions**: 12 → 9 (liberados 3 slots)
+- **AuthContext limpio**: Solo user, loading, login, logout, checkAuth
+- **Orders.jsx fixes**: catalog passed to AI, removed unused Textarea import, fixed statusLabel
+- **Tests de integración**: Login, Clients, Orders con mocks de api-neon y AuthContext
+- **Tests unitarios**: safeIdent, safeOrder, createCRUD con dependency injection
+- **Build verificado**: vite build exitoso
