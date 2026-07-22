@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { orders as ordersApi, vehicles as vehiclesApi, services as servicesApi, groq as groqApi } from '../services/api-neon'
 import { useAuth } from '../context/AuthContext'
-import { Modal, Input, Select, Textarea, StatusBadge } from '../components/ui'
+import { Modal, Input, Select, Textarea, StatusBadge, EmptyState } from '../components/ui'
 import { formatDate, formatCurrency } from '../utils/formatters'
+import Loading from '../components/Loading'
 
 const tabs = [
   { key: '', label: 'Todas' },
@@ -109,7 +110,7 @@ export default function Orders() {
       const res = await groqApi.chat({
         message: form.description,
         vehicleContext,
-        catalog: [],
+        catalog,
       })
 
       setForm(prev => ({
@@ -173,8 +174,6 @@ export default function Orders() {
     ...manualServices.filter(s => s.name.trim()),
   ].reduce((sum, s) => sum + (parseFloat(s.price) || 0), 0)
 
-  const statusLabel = { PENDING: 'Pendiente', IN_PROGRESS: 'En progreso', COMPLETED: 'Completada', CANCELLED: 'Cancelada' }
-
   return (
     <div className="max-w-6xl">
       <div className="flex items-center justify-between mb-6">
@@ -197,12 +196,12 @@ export default function Orders() {
       </div>
 
       <div className="card overflow-hidden">
-        {loading ? <div className="py-16 text-center text-white/30 text-sm">Cargando...</div>
+        {loading ? <Loading />
         : orders.length === 0 ? (
-          <div className="py-16 text-center">
-            <svg className="w-10 h-10 mx-auto mb-3 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15a2.25 2.25 0 012.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25" /></svg>
-            <p className="text-sm text-white/30">No hay órdenes</p>
-          </div>
+          <EmptyState
+            icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15a2.25 2.25 0 012.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25" /></svg>}
+            title="No hay órdenes"
+          />
         ) : (
           <div className="divide-y divide-white/[0.04]">
             {orders.map(o => (

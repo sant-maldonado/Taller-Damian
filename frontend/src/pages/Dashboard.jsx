@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { clients as clientsApi, vehicles as vehiclesApi, orders as ordersApi, invoices as invoicesApi } from '../services/api-neon'
 import { useAuth } from '../context/AuthContext'
-import { formatCurrency, formatDate } from '../utils/formatters'
+import { formatCurrency, formatDate, getStatusLabel } from '../utils/formatters'
+import { StatusBadge } from '../components/ui'
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -118,13 +119,7 @@ export default function Dashboard() {
                       <div className="text-[13px] font-medium text-white">{o.plate || 'N/A'} · {o.brand}</div>
                     </div>
                   </div>
-                  <span className={`badge text-[10px] ${
-                    o.status === 'PENDING' ? 'bg-amber-500/10 text-amber-400' :
-                    o.status === 'IN_PROGRESS' ? 'bg-sky-500/10 text-sky-400' :
-                    'bg-emerald-500/10 text-emerald-400'
-                  }`}>
-                    {o.status === 'PENDING' ? 'Pendiente' : o.status === 'IN_PROGRESS' ? 'En progreso' : 'Completado'}
-                  </span>
+                  <StatusBadge status={o.status} />
                 </div>
               ))}
             </div>

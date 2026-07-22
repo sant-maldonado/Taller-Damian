@@ -35,28 +35,13 @@ export function AuthProvider({ children }) {
     return userData
   }
 
-  async function register(data) {
-    const { token, user: userData } = await auth.register(data)
-    localStorage.setItem('token', token)
-    setUser(userData)
-    return userData
-  }
-
   function logout() {
     localStorage.removeItem('token')
     setUser(null)
   }
 
-  function hasPermission(permission) {
-    return user?.permissions?.includes(permission) || false
-  }
-
-  function hasRole(role) {
-    return user?.role === role
-  }
-
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, hasPermission, hasRole, checkAuth }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, checkAuth }}>
       {children}
     </AuthContext.Provider>
   )

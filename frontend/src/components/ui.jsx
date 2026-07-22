@@ -55,13 +55,14 @@ export function EmptyState({ icon, title, description }) {
   )
 }
 
+import { getStatusLabel } from '../utils/formatters'
+
 export function StatusBadge({ status }) {
   const map = {
-    PENDING: { label: 'Pendiente', cls: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-    IN_PROGRESS: { label: 'En progreso', cls: 'bg-sky-500/10 text-sky-400 border-sky-500/20' },
-    COMPLETED: { label: 'Completado', cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-    CANCELLED: { label: 'Cancelado', cls: 'bg-red-500/10 text-red-400 border-red-500/20' },
+    PENDING: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    IN_PROGRESS: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+    COMPLETED: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    CANCELLED: 'bg-red-500/10 text-red-400 border-red-500/20',
   }
-  const s = map[status] || map.PENDING
-  return <span className={`badge border ${s.cls}`}>{s.label}</span>
+  return <span className={`badge border ${map[status] || map.PENDING}`}>{getStatusLabel(status)}</span>
 }

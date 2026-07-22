@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { hours as hoursApi, orders as ordersApi } from '../services/api-neon'
 import { formatDate, formatHours } from '../utils/formatters'
 import { Modal, Input, Select, EmptyState } from '../components/ui'
+import Loading from '../components/Loading'
 
 export default function Hours() {
   const [entries, setEntries] = useState([])
@@ -11,7 +12,8 @@ export default function Hours() {
   const [filterDate, setFilterDate] = useState('')
   const [form, setForm] = useState({ order_id: '', description: '', hours: '', date: new Date().toISOString().split('T')[0] })
 
-  useEffect(() => { load(); loadOrders() }, [filterDate])
+  useEffect(() => { load() }, [filterDate])
+  useEffect(() => { loadOrders() }, [])
 
   async function load() {
     try {
@@ -45,7 +47,7 @@ export default function Hours() {
       </div>
 
       <div className="card overflow-hidden">
-        {loading ? <div className="py-16 text-center text-white/30 text-sm">Cargando...</div>
+        {loading ? <Loading />
         : entries.length === 0 ? (
           <EmptyState icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} title="No hay registros" description="Registrá horas trabajadas" />
         ) : (

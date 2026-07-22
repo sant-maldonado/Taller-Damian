@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { services as servicesApi } from '../services/api-neon'
 import { useAuth } from '../context/AuthContext'
 import { Modal, Input, Textarea, EmptyState } from '../components/ui'
+import Loading from '../components/Loading'
 
 export default function Services() {
   const { user } = useAuth()
@@ -29,7 +30,7 @@ export default function Services() {
         {isAdmin && <button onClick={() => setShowModal(true)} className="btn-primary">+ Nuevo servicio</button>}
       </div>
 
-      {loading ? <div className="py-16 text-center text-white/30 text-sm">Cargando...</div>
+      {loading ? <Loading />
       : categories.length === 0 ? (
         <EmptyState icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17l-5.384 5.384a2.025 2.025 0 01-2.864-2.864l5.384-5.384m2.864 2.864L17.5 9.5" /></svg>} title="No hay servicios" description="Agregá servicios al catálogo" />
       ) : (

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { vehicles as vehiclesApi, clients as clientsApi } from '../services/api-neon'
 import { useAuth } from '../context/AuthContext'
 import { Modal, Input, Select, EmptyState } from '../components/ui'
+import { engineLabel, transLabel } from '../utils/formatters'
+import Loading from '../components/Loading'
 
 export default function Vehicles() {
   const { user } = useAuth()
@@ -60,9 +62,6 @@ export default function Vehicles() {
     let hash = 0; for (let i = 0; i < brand.length; i++) hash = brand.charCodeAt(i) + ((hash << 5) - hash); return colors[Math.abs(hash) % colors.length]
   }
 
-  const engineLabel = (t) => ({ naftero: 'Naftero', diesel: 'Diésel', naftero_gasoleta: 'Naftero/Gasoleta' }[t] || t || '—')
-  const transLabel = (t) => ({ manual: 'Manual', automatica: 'Automática' }[t] || t || '—')
-
   return (
     <div className="max-w-6xl">
       <div className="flex items-center justify-between mb-6">
@@ -87,7 +86,7 @@ export default function Vehicles() {
 
       <div className="card overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-white/30 text-sm">Cargando...</div>
+          <Loading />
         ) : vehicles.length === 0 ? (
           <EmptyState
             icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.144-.506 1.144-1.125v-1.5c0-.621-.523-1.125-1.144-1.125H18.375m-5.25 0H5.625c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125h10.5M3.75 5.25h16.5" /></svg>}

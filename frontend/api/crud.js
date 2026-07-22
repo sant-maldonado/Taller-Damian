@@ -1,7 +1,11 @@
 const { neon } = require('@neondatabase/serverless');
 const { authMiddleware, requirePermission, getClientIdForUser } = require('./auth-helpers');
 
-const sql = neon(process.env.DATABASE_URL);
+let _sql;
+function getSql() {
+  if (!_sql) _sql = neon(process.env.DATABASE_URL);
+  return _sql;
+}
 
 function safeIdent(name) {
   return `"${String(name).replace(/"/g, '""')}"`;
@@ -17,6 +21,8 @@ function safeOrder(expr) {
 
 function createCRUD(tableName, options = {}) {
   const { singularName, permissionPrefix, orderBy = 'created_at DESC', clientFilter } = options;
+  const _requirePermission = options.requirePermission || requirePermission;
+  const _sql = options.sql || getSql();
 
   async function getClientWhere(req) {
     if (!clientFilter || req.user.role !== 'client') return null;
@@ -24,7 +30,7 @@ function createCRUD(tableName, options = {}) {
     return clientId;
   }
 
-  const list = requirePermission(`${permissionPrefix}.read`)(async (req, res) => {
+  const list = _requirePermission(`${permissionPrefix}.read`)(async (req, res) => {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Método no permitido' });
 
     try {
@@ -54,10 +60,10 @@ function createCRUD(tableName, options = {}) {
       const table = safeIdent(tableName);
       const orderClause = safeOrder(orderBy);
       const query = `SELECT * FROM ${table} ${where} ORDER BY ${orderClause} LIMIT ${lim} OFFSET ${off}`;
-      const items = params.length > 0 ? await sql.query(query, params) : await sql.query(query);
+      const items = params.length > 0 ? await _sql.query(query, params) : await _sql.query(query);
 
       const countQuery = `SELECT COUNT(*)::int as total FROM ${table} ${where}`;
-      const countResult = params.length > 0 ? await sql.query(countQuery, params) : await sql.query(countQuery);
+      const countResult = params.length > 0 ? await _sql.query(countQuery, params) : await _sql.query(countQuery);
       const total = countResult[0].total;
 
       return res.status(200).json({ items, total });
@@ -67,7 +73,7 @@ function createCRUD(tableName, options = {}) {
     }
   });
 
-  const get = requirePermission(`${permissionPrefix}.read`)(async (req, res) => {
+  const get = _requirePermission(`${permissionPrefix}.read`)(async (req, res) => {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Método no permitido' });
 
     try {
@@ -77,9 +83,9 @@ function createCRUD(tableName, options = {}) {
 
       let result;
       if (clientId) {
-        result = await sql.query(`SELECT * FROM ${table} WHERE id = $1 AND ${safeIdent(clientFilter)} = $2`, [id, clientId]);
+        result = await _sql.query(`SELECT * FROM ${table} WHERE id = $1 AND ${safeIdent(clientFilter)} = $2`, [id, clientId]);
       } else {
-        result = await sql.query(`SELECT * FROM ${table} WHERE id = $1`, [id]);
+        result = await _sql.query(`SELECT * FROM ${table} WHERE id = $1`, [id]);
       }
 
       if (result.length === 0) {
@@ -93,7 +99,7 @@ function createCRUD(tableName, options = {}) {
     }
   });
 
-  const create = requirePermission(`${permissionPrefix}.create`)(async (req, res) => {
+  const create = _requirePermission(`${permissionPrefix}.create`)(async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
 
     if (clientFilter && req.user.role === 'client') {
@@ -110,7 +116,7 @@ function createCRUD(tableName, options = {}) {
       const cols = keys.map(k => safeIdent(k)).join(', ');
       const placeholders = keys.map((_, i) => `$${i + 1}`).join(', ');
 
-      const result = await sql.query(
+      const result = await _sql.query(
         `INSERT INTO ${table} (${cols}) VALUES (${placeholders}) RETURNING *`,
         values
       );
@@ -122,7 +128,7 @@ function createCRUD(tableName, options = {}) {
     }
   });
 
-  const update = requirePermission(`${permissionPrefix}.update`)(async (req, res) => {
+  const update = _requirePermission(`${permissionPrefix}.update`)(async (req, res) => {
     if (req.method !== 'PUT') return res.status(405).json({ error: 'Método no permitido' });
 
     if (clientFilter && req.user.role === 'client') {
@@ -140,7 +146,7 @@ function createCRUD(tableName, options = {}) {
       const table = safeIdent(tableName);
       const setClause = keys.map((k, i) => `${safeIdent(k)} = $${i + 1}`).join(', ');
 
-      const result = await sql.query(
+      const result = await _sql.query(
         `UPDATE ${table} SET ${setClause} WHERE id = $${keys.length + 1} RETURNING *`,
         [...values, id]
       );
@@ -156,7 +162,7 @@ function createCRUD(tableName, options = {}) {
     }
   });
 
-  const remove = requirePermission(`${permissionPrefix}.delete`)(async (req, res) => {
+  const remove = _requirePermission(`${permissionPrefix}.delete`)(async (req, res) => {
     if (req.method !== 'DELETE') return res.status(405).json({ error: 'Método no permitido' });
 
     if (clientFilter && req.user.role === 'client') {
@@ -166,7 +172,7 @@ function createCRUD(tableName, options = {}) {
     try {
       const { id } = req.query;
       const table = safeIdent(tableName);
-      const result = await sql.query(`DELETE FROM ${table} WHERE id = $1 RETURNING id`, [id]);
+      const result = await _sql.query(`DELETE FROM ${table} WHERE id = $1 RETURNING id`, [id]);
 
       if (result.length === 0) {
         return res.status(404).json({ error: `${singularName || tableName} no encontrado` });
@@ -182,4 +188,4 @@ function createCRUD(tableName, options = {}) {
   return { list, get, create, update, remove };
 }
 
-module.exports = { createCRUD };
+module.exports = { createCRUD, safeIdent, safeOrder };

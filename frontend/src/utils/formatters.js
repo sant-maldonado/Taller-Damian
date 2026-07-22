@@ -41,3 +41,22 @@ export function getStatusColor(status) {
   }
   return colors[status] || 'bg-gray-500'
 }
+
+export const ENGINE_LABELS = {
+  naftero: 'Naftero',
+  diesel: 'Diésel',
+  naftero_gasoleta: 'Naftero/Gasoleta',
+}
+
+export const TRANSMISSION_LABELS = {
+  manual: 'Manual',
+  automatica: 'Automática',
+}
+
+export function engineLabel(type) {
+  return ENGINE_LABELS[type] || type || '—'
+}
+
+export function transLabel(type) {
+  return TRANSMISSION_LABELS[type] || type || '—'
+}

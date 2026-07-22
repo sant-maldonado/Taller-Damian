@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { vehicles as vehiclesApi, groq as groqApi, services as servicesApi, orders as ordersApi } from '../services/api-neon'
 import { useAuth } from '../context/AuthContext'
 import { StatusBadge, EmptyState } from '../components/ui'
-import { formatDate, formatCurrency, formatHours } from '../utils/formatters'
+import { formatDate, formatCurrency, formatHours, getStatusLabel, engineLabel, transLabel } from '../utils/formatters'
+import Loading from '../components/Loading'
 
 export default function VehicleDetail() {
   const { id } = useParams()
@@ -105,7 +106,7 @@ export default function VehicleDetail() {
     }
   }
 
-  if (loading) return <div className="max-w-6xl"><div className="py-16 text-center text-white/30 text-sm">Cargando...</div></div>
+  if (loading) return <div className="max-w-6xl"><Loading /></div>
   if (!data) return <div className="max-w-6xl"><EmptyState icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>} title="Vehículo no encontrado" description="El vehículo no existe o no tenés acceso" /></div>
 
   const { vehicle, orders } = data
@@ -128,9 +129,6 @@ export default function VehicleDetail() {
   const latestKm = orderWithKm[0]?.mileage || null
   const prevKm = orderWithKm[1]?.mileage || null
   const kmDiff = latestKm && prevKm ? latestKm - prevKm : null
-
-  const engineLabel = (t) => ({ naftero: 'Naftero', diesel: 'Diésel', naftero_gasoleta: 'Naftero/Gasoleta' }[t] || '—')
-  const transLabel = (t) => ({ manual: 'Manual', automatica: 'Automática' }[t] || '—')
 
   const tabs = [
     { key: '', label: 'Todas', count: orders.length },
@@ -206,7 +204,7 @@ export default function VehicleDetail() {
     const rows = pdfOrders.map(o => {
       const servicesList = (o.services || []).map(s => s.name).join(', ') || '—'
       const total = o.invoices?.[0]?.total ? parseFloat(o.invoices[0].total) : (o.services || []).reduce((s, svc) => s + parseFloat(svc.price || 0), 0)
-      return [formatDate(o.created_at), o.status === 'PENDING' ? 'Pendiente' : o.status === 'IN_PROGRESS' ? 'En progreso' : o.status === 'COMPLETED' ? 'Completado' : 'Cancelado', o.mileage ? `${o.mileage.toLocaleString()} km` : '—', servicesList.substring(0, 40), `$${total.toLocaleString('es-AR')}`]
+      return [formatDate(o.created_at), getStatusLabel(o.status), o.mileage ? `${o.mileage.toLocaleString()} km` : '—', servicesList.substring(0, 40), `$${total.toLocaleString('es-AR')}`]
     })
     doc.autoTable({ startY: y, head: [['Fecha', 'Estado', 'Km', 'Servicios', 'Total']], body: rows, styles: { fontSize: 8, cellPadding: 3 }, headStyles: { fillColor: [41, 65, 122] }, alternateRowStyles: { fillColor: [240, 243, 250] }, margin: { left: 14, right: 14 } })
     const filename = hasDateFilter
