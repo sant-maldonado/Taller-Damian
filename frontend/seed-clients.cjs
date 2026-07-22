@@ -18,17 +18,17 @@ async function seed() {
 
     // Crear 5 clientes como usuarios
     const clientes = [
-      { email: 'cliente1@email.com', name: 'Martín López', phone: '+54 11 6666-0001', dni: '30123456' },
-      { email: 'cliente2@email.com', name: 'Lucía García', phone: '+54 11 6666-0002', dni: '30234567' },
-      { email: 'cliente3@email.com', name: 'Fernando Ruiz', phone: '+54 11 6666-0003', dni: '30345678' },
-      { email: 'cliente4@email.com', name: 'Camila Torres', phone: '+54 11 6666-0004', dni: '30456789' },
-      { email: 'cliente5@email.com', name: 'Rodrigo Díaz', phone: '+54 11 6666-0005', dni: '30567890' }
+      { email: '30123456', name: 'Martín López', phone: '+54 11 6666-0001', dni: '30123456' },
+      { email: '30234567', name: 'Lucía García', phone: '+54 11 6666-0002', dni: '30234567' },
+      { email: '30345678', name: 'Fernando Ruiz', phone: '+54 11 6666-0003', dni: '30345678' },
+      { email: '30456789', name: 'Camila Torres', phone: '+54 11 6666-0004', dni: '30456789' },
+      { email: '30567890', name: 'Rodrigo Díaz', phone: '+54 11 6666-0005', dni: '30567890' }
     ];
 
     for (const c of clientes) {
       // Crear usuario
       await sql`INSERT INTO users (email, password_hash, name, role_id, phone, is_active)
-        SELECT ${c.email}, crypt('workshop2026', gen_salt('bf')), ${c.name}, r.id, ${c.phone}, true
+        SELECT ${c.email}, crypt('admin123', gen_salt('bf')), ${c.name}, r.id, ${c.phone}, true
         FROM roles r WHERE r.name = 'client'
         ON CONFLICT (email) DO NOTHING`;
 

@@ -38,6 +38,16 @@ const sesiones = agents.split("\n## ");
 const ultima = sesiones[sesiones.length - 1];
 const tituloSesion = ultima.split("\n")[0].trim();
 
+// Extraer horas de la sesion y total acumulado
+const horasMatch = ultima.match(/\*\*Horas\*\*:?\s*(\d+(?:\.\d+)?)\s*h/i);
+const horasSesion = horasMatch ? horasMatch[1] : null;
+
+let horasTotal = 0;
+for (const s of sesiones.slice(1)) {
+  const hm = s.match(/\*\*Horas\*\*:?\s*(\d+(?:\.\d+)?)\s*h/i);
+  if (hm) horasTotal += parseFloat(hm[1]);
+}
+
 // Extraer tareas (lineas con - **Title**: description)
 const tareas = [];
 let currentTask = null;
@@ -104,13 +114,15 @@ const html = `<!DOCTYPE html>
   <div class="meta-item"><span class="label">Fecha</span><span class="value">${fechaEsp}</span></div>
   <div class="meta-item"><span class="label">Tests</span><span class="value">${testCount} · ${suiteCount} suites</span></div>
   <div class="meta-item"><span class="label">Sesion</span><span class="value">${tituloSesion}</span></div>
+  ${horasSesion ? `<div class="meta-item"><span class="label">Horas sesion</span><span class="value">${horasSesion}h</span></div>` : ''}
+  ${horasTotal > 0 ? `<div class="meta-item"><span class="label">Horas totales</span><span class="value">${horasTotal}h</span></div>` : ''}
 </div>
 <h2>Tareas realizadas</h2>
 ${tareas.length > 0
   ? tareas.map(t => `<div class="task"><div class="desc"><strong>${t.title}</strong><span>${t.desc || ""}</span></div></div>`).join("\n")
   : '<p style="color:#64748b;font-size:14px;">No se encontraron tareas formateadas en la ultima sesion de AGENTS.md.</p>'}
 <div class="status"><h3>Estado</h3><ul><li>${testCount} tests pasan (${suiteCount} suites)</li></ul></div>
-<div class="footer">${CONFIG.projectName} — Generado el ${fechaEsp}</div>
+<div class="footer">${CONFIG.projectName} — ${horasSesion ? `${horasSesion}h en esta sesion` : ''}${horasTotal > 0 ? ` — ${horasTotal}h totales acumuladas` : ''} — Generado el ${fechaEsp}</div>
 <script>window.print();</script>
 </body>
 </html>`;

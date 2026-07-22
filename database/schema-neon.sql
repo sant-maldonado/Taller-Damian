@@ -179,6 +179,7 @@ INSERT INTO roles (name, description) VALUES
   ('admin', 'Administrador completo del sistema'),
   ('manager', 'Gerente - gestión de órdenes, clientes, facturas'),
   ('mechanic', 'Mecánico - ver órdenes, registrar horas, fotos'),
+  ('client', 'Cliente - acceso limitado a sus propios datos'),
   ('viewer', 'Solo lectura - consultar información');
 
 -- Permisos por módulo
@@ -248,6 +249,11 @@ WHERE r.name = 'mechanic' AND (
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r, permissions p
 WHERE r.name = 'viewer' AND p.name LIKE '%.read';
+
+-- Client: solo ver sus propios vehículos y órdenes
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r, permissions p
+WHERE r.name = 'client' AND p.name IN ('vehicles.read', 'orders.read');
 
 -- =============================================
 -- SERVICIOS POR DEFECTO

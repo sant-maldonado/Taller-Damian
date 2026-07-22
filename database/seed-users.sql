@@ -1,109 +1,64 @@
--- Seed: Usuarios admin y clientes
--- Todos con contraseña: workshop2026
+-- Seed: Usuarios del sistema
+-- Contraseña universal: admin123
 
 -- =============================================
--- USUARIOS ADMIN (rol: admin)
+-- ADMIN (rol: admin)
 -- =============================================
 
 INSERT INTO users (email, password_hash, name, role_id, phone, is_active)
 SELECT
-  'admin2@taller.com',
-  crypt('workshop2026', gen_salt('bf')),
-  'Carlos Admin',
+  'admin@taller.com',
+  crypt('admin123', gen_salt('bf')),
+  'Administrador',
   r.id,
   '+54 11 5555-0001',
   true
 FROM roles r WHERE r.name = 'admin'
 ON CONFLICT (email) DO NOTHING;
 
-INSERT INTO users (email, password_hash, name, role_id, phone, is_active)
-SELECT
-  'admin3@taller.com',
-  crypt('workshop2026', gen_salt('bf')),
-  'María Admin',
-  r.id,
-  '+54 11 5555-0002',
-  true
-FROM roles r WHERE r.name = 'admin'
-ON CONFLICT (email) DO NOTHING;
-
 -- =============================================
--- USUARIOS GERENTES (rol: manager)
+-- CLIENTES (rol: client) — login con DNI
 -- =============================================
 
 INSERT INTO users (email, password_hash, name, role_id, phone, is_active)
-SELECT
-  'gerente1@taller.com',
-  crypt('workshop2026', gen_salt('bf')),
-  'Roberto Gerente',
-  r.id,
-  '+54 11 5555-0010',
-  true
-FROM roles r WHERE r.name = 'manager'
-ON CONFLICT (email) DO NOTHING;
+SELECT '30123456', crypt('admin123', gen_salt('bf')), 'Martín López', r.id, '+54 11 6666-0001', true
+FROM roles r WHERE r.name = 'client' ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO clients (name, phone, email, dni)
+SELECT 'Martín López', '+54 11 6666-0001', '30123456', '30123456'
+WHERE NOT EXISTS (SELECT 1 FROM clients WHERE dni = '30123456');
 
 INSERT INTO users (email, password_hash, name, role_id, phone, is_active)
-SELECT
-  'gerente2@taller.com',
-  crypt('workshop2026', gen_salt('bf')),
-  'Laura Gerente',
-  r.id,
-  '+54 11 5555-0011',
-  true
-FROM roles r WHERE r.name = 'manager'
-ON CONFLICT (email) DO NOTHING;
+SELECT '30234567', crypt('admin123', gen_salt('bf')), 'Lucía García', r.id, '+54 11 6666-0002', true
+FROM roles r WHERE r.name = 'client' ON CONFLICT (email) DO NOTHING;
 
--- =============================================
--- USUARIOS MECÁNICOS (rol: mechanic)
--- =============================================
+INSERT INTO clients (name, phone, email, dni)
+SELECT 'Lucía García', '+54 11 6666-0002', '30234567', '30234567'
+WHERE NOT EXISTS (SELECT 1 FROM clients WHERE dni = '30234567');
 
 INSERT INTO users (email, password_hash, name, role_id, phone, is_active)
-SELECT
-  'mecanico1@taller.com',
-  crypt('workshop2026', gen_salt('bf')),
-  'Juan Mecánico',
-  r.id,
-  '+54 11 5555-0020',
-  true
-FROM roles r WHERE r.name = 'mechanic'
-ON CONFLICT (email) DO NOTHING;
+SELECT '30345678', crypt('admin123', gen_salt('bf')), 'Fernando Ruiz', r.id, '+54 11 6666-0003', true
+FROM roles r WHERE r.name = 'client' ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO clients (name, phone, email, dni)
+SELECT 'Fernando Ruiz', '+54 11 6666-0003', '30345678', '30345678'
+WHERE NOT EXISTS (SELECT 1 FROM clients WHERE dni = '30345678');
 
 INSERT INTO users (email, password_hash, name, role_id, phone, is_active)
-SELECT
-  'mecanico2@taller.com',
-  crypt('workshop2026', gen_salt('bf')),
-  'Pedro Mecánico',
-  r.id,
-  '+54 11 5555-0021',
-  true
-FROM roles r WHERE r.name = 'mechanic'
-ON CONFLICT (email) DO NOTHING;
+SELECT '30456789', crypt('admin123', gen_salt('bf')), 'Camila Torres', r.id, '+54 11 6666-0004', true
+FROM roles r WHERE r.name = 'client' ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO clients (name, phone, email, dni)
+SELECT 'Camila Torres', '+54 11 6666-0004', '30456789', '30456789'
+WHERE NOT EXISTS (SELECT 1 FROM clients WHERE dni = '30456789');
 
 INSERT INTO users (email, password_hash, name, role_id, phone, is_active)
-SELECT
-  'mecanico3@taller.com',
-  crypt('workshop2026', gen_salt('bf')),
-  'Diego Mecánico',
-  r.id,
-  '+54 11 5555-0022',
-  true
-FROM roles r WHERE r.name = 'mechanic'
-ON CONFLICT (email) DO NOTHING;
+SELECT '30567890', crypt('admin123', gen_salt('bf')), 'Rodrigo Díaz', r.id, '+54 11 6666-0005', true
+FROM roles r WHERE r.name = 'client' ON CONFLICT (email) DO NOTHING;
 
--- =============================================
--- USUARIOS SOLO LECTURA (rol: viewer)
--- =============================================
-
-INSERT INTO users (email, password_hash, name, role_id, phone, is_active)
-SELECT
-  'viewer1@taller.com',
-  crypt('workshop2026', gen_salt('bf')),
-  'Ana Viewer',
-  r.id,
-  '+54 11 5555-0030',
-  true
-FROM roles r WHERE r.name = 'viewer'
-ON CONFLICT (email) DO NOTHING;
+INSERT INTO clients (name, phone, email, dni)
+SELECT 'Rodrigo Díaz', '+54 11 6666-0005', '30567890', '30567890'
+WHERE NOT EXISTS (SELECT 1 FROM clients WHERE dni = '30567890');
 
 -- =============================================
 -- VERIFICACIÓN
