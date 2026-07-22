@@ -12,6 +12,7 @@ import Services from './pages/Services'
 import Invoices from './pages/Invoices'
 import Reports from './pages/Reports'
 import Hours from './pages/Hours'
+import Users from './pages/Users'
 import './index.css'
 
 function ProtectedRoute({ children }) {
@@ -49,6 +50,7 @@ function AppRoutes() {
         <Route path="/invoices" element={<Invoices />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/hours" element={<Hours />} />
+        <Route path="/users" element={<Users />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
