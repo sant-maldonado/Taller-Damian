@@ -85,23 +85,45 @@ async function handleRegister(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
 
   try {
-    const { email, password, name, phone } = req.body;
-    if (!email || !password || !name) return res.status(400).json({ error: 'Email, contraseña y nombre son requeridos' });
+    const { email, password, name, phone, dni, plate, brand, model, year } = req.body;
+    if (!email || !password || !name || !dni || !plate) {
+      return res.status(400).json({ error: 'Nombre, email, contraseña, DNI y patente son requeridos' });
+    }
 
-    const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
-    if (existing.length > 0) return res.status(409).json({ error: 'El email ya está registrado' });
+    const existingEmail = await sql`SELECT id FROM users WHERE email = ${email}`;
+    if (existingEmail.length > 0) return res.status(409).json({ error: 'El email ya está registrado' });
+
+    const existingDni = await sql`SELECT id FROM clients WHERE dni = ${dni}`;
+    if (existingDni.length > 0) return res.status(409).json({ error: 'El DNI ya está registrado' });
+
+    const existingPlate = await sql`SELECT id FROM vehicles WHERE UPPER(REPLACE(plate, ' ', '')) = ${plate.toUpperCase().replace(/\s/g, '')}`;
+    if (existingPlate.length > 0) return res.status(409).json({ error: 'La patente ya está registrada' });
 
     const passwordHash = await bcrypt.hash(password, 10);
     const roleResult = await sql`SELECT id FROM roles WHERE name = 'client'`;
     const roleId = roleResult.length > 0 ? roleResult[0].id : null;
 
-    const result = await sql`
+    const userResult = await sql`
       INSERT INTO users (email, password_hash, name, phone, role_id)
       VALUES (${email}, ${passwordHash}, ${name}, ${phone || null}, ${roleId})
       RETURNING id, email, name, phone, created_at
     `;
 
-    const user = result[0];
+    const user = userResult[0];
+
+    const clientResult = await sql`
+      INSERT INTO clients (name, phone, email, dni, created_by)
+      VALUES (${name}, ${phone || null}, ${email}, ${dni}, ${user.id})
+      RETURNING id
+    `;
+
+    const clientId = clientResult[0].id;
+
+    await sql`
+      INSERT INTO vehicles (plate, brand, model, year, client_id, created_by)
+      VALUES (${plate.toUpperCase()}, ${brand || null}, ${model || null}, ${year ? parseInt(year) : null}, ${clientId}, ${user.id})
+    `;
+
     const token = generateToken({ ...user, role_name: 'client' });
 
     return res.status(201).json({

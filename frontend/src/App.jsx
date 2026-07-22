@@ -13,6 +13,7 @@ import Invoices from './pages/Invoices'
 import Reports from './pages/Reports'
 import Hours from './pages/Hours'
 import Users from './pages/Users'
+import Register from './pages/Register'
 import './index.css'
 
 function ProtectedRoute({ children }) {
@@ -39,7 +40,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
-      <Route path="/register" element={user ? <Navigate to="/" replace /> : <Login />} />
+      <Route path="/register" element={user ? <Navigate to="/" replace /> : <Register />} />
       <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/clients" element={<Clients />} />

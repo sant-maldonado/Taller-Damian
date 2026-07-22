@@ -35,13 +35,21 @@ export function AuthProvider({ children }) {
     return userData
   }
 
+  async function register(data) {
+    const { token } = await auth.register(data)
+    localStorage.setItem('token', token)
+    const { user: userData } = await auth.me()
+    setUser(userData)
+    return userData
+  }
+
   function logout() {
     localStorage.removeItem('token')
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, checkAuth }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, checkAuth }}>
       {children}
     </AuthContext.Provider>
   )
