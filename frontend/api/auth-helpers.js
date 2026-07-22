@@ -1,17 +1,21 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'taller-mecanico-secret-key-change-in-production';
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET environment variable is required');
+  return secret;
+}
 
 function generateToken(user) {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role_name },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: '7d' }
   );
 }
 
 function verifyToken(token) {
-  return jwt.verify(token, JWT_SECRET);
+  return jwt.verify(token, getJwtSecret());
 }
 
 function authMiddleware(handler) {
@@ -64,4 +68,4 @@ async function getClientIdForUser(userId) {
   return result.length > 0 ? result[0].id : null;
 }
 
-module.exports = { generateToken, verifyToken, authMiddleware, requirePermission, JWT_SECRET, getClientIdForUser };
+module.exports = { generateToken, verifyToken, authMiddleware, requirePermission, getClientIdForUser };

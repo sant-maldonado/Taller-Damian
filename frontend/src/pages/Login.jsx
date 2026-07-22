@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
@@ -83,15 +83,7 @@ export default function Login() {
           </form>
 
           <p className="text-[11px] text-white/25 mt-4 text-center">Clientes: ingresá tu DNI o patente del vehículo</p>
-
-          <div className="mt-3 text-center">
-            <Link to="/register" className="text-[12px] text-white/30 hover:text-white/60 transition-colors">
-              ¿No tenés cuenta? Crear una
-            </Link>
-          </div>
         </div>
-
-        <p className="text-center text-[11px] text-white/15 mt-6">Admin: admin@taller.com / admin123</p>
       </div>
     </div>
   )

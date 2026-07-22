@@ -85,14 +85,14 @@ async function handleRegister(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
 
   try {
-    const { email, password, name, phone, role_name } = req.body;
+    const { email, password, name, phone } = req.body;
     if (!email || !password || !name) return res.status(400).json({ error: 'Email, contraseña y nombre son requeridos' });
 
     const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
     if (existing.length > 0) return res.status(409).json({ error: 'El email ya está registrado' });
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const roleResult = await sql`SELECT id FROM roles WHERE name = ${role_name || 'viewer'}`;
+    const roleResult = await sql`SELECT id FROM roles WHERE name = 'client'`;
     const roleId = roleResult.length > 0 ? roleResult[0].id : null;
 
     const result = await sql`
@@ -102,7 +102,7 @@ async function handleRegister(req, res) {
     `;
 
     const user = result[0];
-    const token = generateToken({ ...user, role_name: role_name || 'viewer' });
+    const token = generateToken({ ...user, role_name: 'client' });
 
     return res.status(201).json({
       token,
@@ -111,7 +111,7 @@ async function handleRegister(req, res) {
         email: user.email,
         name: user.name,
         phone: user.phone,
-        role: role_name || 'viewer',
+        role: 'client',
       },
     });
   } catch (error) {
