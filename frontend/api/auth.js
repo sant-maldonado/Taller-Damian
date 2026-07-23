@@ -8,6 +8,7 @@ module.exports = async (req, res) => {
   if (action === 'login') return handleLogin(req, res);
   if (action === 'register') return handleRegister(req, res);
   if (action === 'me') return handleMe(req, res);
+  if (action === 'change-password') return handleChangePassword(req, res);
 
   return res.status(400).json({ error: 'Acción no válida' });
 };
@@ -178,5 +179,34 @@ const handleMe = authMiddleware(async (req, res) => {
   } catch (error) {
     console.error('Get user error:', error);
     return res.status(500).json({ error: 'Error al obtener usuario' });
+  }
+});
+
+const handleChangePassword = authMiddleware(async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
+
+  try {
+    const { current_password, new_password } = req.body;
+    if (!current_password || !new_password) {
+      return res.status(400).json({ error: 'Contraseña actual y nueva contraseña son requeridas' });
+    }
+
+    if (new_password.length < 6) {
+      return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 6 caracteres' });
+    }
+
+    const result = await sql`SELECT password_hash FROM users WHERE id = ${req.user.id}`;
+    if (result.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const valid = await bcrypt.compare(current_password, result[0].password_hash);
+    if (!valid) return res.status(401).json({ error: 'La contraseña actual es incorrecta' });
+
+    const newHash = await bcrypt.hash(new_password, 10);
+    await sql`UPDATE users SET password_hash = ${newHash}, updated_at = NOW() WHERE id = ${req.user.id}`;
+
+    return res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    return res.status(500).json({ error: 'Error al cambiar contraseña' });
   }
 });

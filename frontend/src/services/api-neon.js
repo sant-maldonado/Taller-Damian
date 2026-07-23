@@ -35,6 +35,11 @@ export const auth = {
       body: JSON.stringify(data),
     }),
   me: () => request('/api/auth?action=me'),
+  changePassword: (data) =>
+    request('/api/auth?action=change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };
 
 // CRUD helpers

@@ -1,7 +1,7 @@
 {
-  "name": "Taller Mecánico",
-  "short_name": "Taller",
-  "description": "Sistema de gestión para taller mecánico",
+  "name": "Taller Damian",
+  "short_name": "Taller Damian",
+  "description": "Sistema de gestión para Taller Damian",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

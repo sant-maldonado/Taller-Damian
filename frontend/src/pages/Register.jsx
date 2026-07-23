@@ -35,7 +35,7 @@ export default function Register() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17l-5.384 5.384a2.025 2.025 0 01-2.864-2.864l5.384-5.384m2.864 2.864L17.5 9.5" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-1">Taller Mecánico</h1>
+          <h1 className="text-2xl font-bold text-white mb-1">Taller Damian</h1>
           <p className="text-sm text-white/40">Crear cuenta de cliente</p>
         </div>
 

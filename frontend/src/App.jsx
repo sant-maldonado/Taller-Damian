@@ -14,6 +14,7 @@ import Reports from './pages/Reports'
 import Hours from './pages/Hours'
 import Users from './pages/Users'
 import Register from './pages/Register'
+import Account from './pages/Account'
 import './index.css'
 
 function ProtectedRoute({ children }) {
@@ -52,6 +53,7 @@ function AppRoutes() {
         <Route path="/reports" element={<Reports />} />
         <Route path="/hours" element={<Hours />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/account" element={<Account />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
