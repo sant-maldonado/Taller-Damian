@@ -91,7 +91,7 @@ export default function Vehicles() {
           <EmptyState
             icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.144-.506 1.144-1.125v-1.5c0-.621-.523-1.125-1.144-1.125H18.375m-5.25 0H5.625c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125h10.5M3.75 5.25h16.5" /></svg>}
             title="No hay vehículos"
-            description={isClient ? "No tenés vehículos registrados" : "Registrá tu primer vehículo para comenzar"}
+            description={isClient ? "No tenés vehículos registrados" : "Creá un trabajo por patente y el vehículo se carga solo. También podés registrarlo acá."}
           />
         ) : (
           <div className="divide-y divide-white/[0.04]">

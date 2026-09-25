@@ -43,14 +43,15 @@ export function Modal({ open, onClose, title, children, wide }) {
   )
 }
 
-export function EmptyState({ icon, title, description }) {
+export function EmptyState({ icon, title, description, children }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="w-14 h-14 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mb-4 text-white/20">
         {icon}
       </div>
       <p className="text-sm font-medium text-white/60 mb-1">{title}</p>
-      {description && <p className="text-xs text-white/30">{description}</p>}
+      {description && <p className="text-xs text-white/30 max-w-xs leading-relaxed">{description}</p>}
+      {children}
     </div>
   )
 }

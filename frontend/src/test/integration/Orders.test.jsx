@@ -239,7 +239,7 @@ describe('Orders integration', () => {
 
     render(<Orders />)
     await waitFor(() => {
-      expect(screen.getByText('No hay órdenes')).toBeInTheDocument()
+      expect(screen.getByText('No hay trabajos')).toBeInTheDocument()
     })
   })
 })
