@@ -50,3 +50,9 @@ select.input option { background: #1a1a1a; color: #ccc; }
 @utility page-subtitle {
   @apply text-[13px] text-white/40 mt-1;
 }
+
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .no-print { display: none !important; }
+  .print-area { box-shadow: none !important; border: none !important; max-width: 100% !important; }
+}

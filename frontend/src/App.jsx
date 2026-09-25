@@ -9,6 +9,7 @@ import Clients from './pages/Clients'
 import Vehicles from './pages/Vehicles'
 import VehicleDetail from './pages/VehicleDetail'
 import Orders from './pages/Orders'
+import PrintOrder from './pages/PrintOrder'
 import Services from './pages/Services'
 import Invoices from './pages/Invoices'
 import Reports from './pages/Reports'
@@ -49,6 +50,8 @@ function AppRoutes() {
         <Route path="/vehicles" element={<Vehicles />} />
         <Route path="/vehicles/:id" element={<VehicleDetail />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/orders/:orderId/imprimir" element={<PrintOrder />} />
+        <Route path="/imprimir/:orderId" element={<PrintOrder />} />
         <Route path="/services" element={<Services />} />
         <Route path="/invoices" element={<Invoices />} />
         <Route path="/reports" element={<Reports />} />

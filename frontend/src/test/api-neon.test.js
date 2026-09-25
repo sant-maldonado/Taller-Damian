@@ -174,6 +174,19 @@ describe('orders', () => {
       body: JSON.stringify(data),
     });
   });
+
+  it('detail(id) sends GET to /api/orders?id=3&action=detail', async () => {
+    mockFetchOk({ id: 3, services: [], invoices: [] });
+    await orders.detail(3);
+
+    expect(global.fetch).toHaveBeenCalledWith('/api/orders?id=3&action=detail', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-token',
+      },
+    });
+  });
 });
 
 describe('vehicles', () => {

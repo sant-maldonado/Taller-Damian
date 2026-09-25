@@ -8,6 +8,7 @@ module.exports = async (req, res) => {
   if (req.query.action === 'remove-service' && req.method === 'DELETE') return removeService(req, res);
   if (req.query.action === 'fast' && req.method === 'POST') return fastCreateOrder(req, res);
   if (req.query.action === 'collect' && req.method === 'POST') return collectOrder(req, res);
+  if (req.query.action === 'detail' && req.method === 'GET') return getOrderDetail(req, res);
   switch (req.method) {
     case 'GET': return listOrders(req, res);
     case 'POST': return createOrder(req, res);
@@ -262,5 +263,38 @@ const collectOrder = requirePermission('orders.update')(async (req, res) => {
   } catch (error) {
     console.error('Collect order error:', error);
     return res.status(500).json({ error: 'Error al cobrar orden' });
+  }
+});
+
+const getOrderDetail = requirePermission('orders.read')(async (req, res) => {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Método no permitido' });
+
+  try {
+    const { id } = req.query;
+    if (!id) return res.status(400).json({ error: 'ID requerido' });
+
+    const [order] = await sql`
+      SELECT o.*, v.plate, v.brand, v.model, v.year, v.client_id,
+        c.name AS client_name, c.phone AS client_phone, c.dni AS client_dni, c.email AS client_email
+      FROM orders o
+      JOIN vehicles v ON v.id = o.vehicle_id
+      LEFT JOIN clients c ON c.id = v.client_id
+      WHERE o.id = ${id}
+    `;
+    if (!order) return res.status(404).json({ error: 'Orden no encontrada' });
+
+    if (req.user.role === 'client') {
+      const clientId = await getClientIdForUser(req.user.id);
+      if (!clientId || order.client_id !== clientId) return res.status(403).json({ error: 'No autorizado' });
+    }
+
+    const services = await sql`SELECT * FROM order_services WHERE order_id = ${id} ORDER BY created_at`;
+    const invoices = await sql`SELECT * FROM invoices WHERE order_id = ${id}`;
+
+    const { client_id, ...rest } = order;
+    return res.status(200).json({ ...rest, services, invoices });
+  } catch (error) {
+    console.error('Order detail error:', error);
+    return res.status(500).json({ error: 'Error al obtener orden' });
   }
 });

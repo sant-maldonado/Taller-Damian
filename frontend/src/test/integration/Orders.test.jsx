@@ -15,6 +15,7 @@ const mockOrdersUpdate = vi.fn().mockResolvedValue({})
 const mockOrdersRemove = vi.fn().mockResolvedValue({})
 const mockOrdersAddService = vi.fn().mockResolvedValue({})
 const mockOrdersRemoveService = vi.fn().mockResolvedValue({})
+const mockOrdersCollect = vi.fn().mockResolvedValue({ invoice: { id: 1 }, total: 1000 })
 
 const mockVehiclesList = vi.fn().mockImplementation(({ search } = {}) => {
   const all = [
@@ -48,6 +49,7 @@ vi.mock('../../services/api-neon', () => ({
     remove: (...args) => mockOrdersRemove(...args),
     addService: (...args) => mockOrdersAddService(...args),
     removeService: (...args) => mockOrdersRemoveService(...args),
+    collect: (...args) => mockOrdersCollect(...args),
   },
   vehicles: {
     list: (...args) => mockVehiclesList(...args),
@@ -232,6 +234,24 @@ describe('Orders integration', () => {
     await waitFor(() => {
       expect(mockOrdersRemove).toHaveBeenCalledWith(1)
     })
+  })
+
+  it('clicking Cobrar confirms and calls orders.collect for non-completed orders', async () => {
+    render(<Orders />)
+    await waitFor(() => {
+      expect(screen.getByText('ABC123')).toBeInTheDocument()
+    })
+
+    const abcRow = screen.getByText('ABC123').closest('.divide-y > div')
+    fireEvent.click(within(abcRow).getByRole('button', { name: '$ Cobrar' }))
+
+    expect(window.confirm).toHaveBeenCalledWith('¿Cobrar esta orden? Se marca como lista y se genera la factura.')
+    await waitFor(() => {
+      expect(mockOrdersCollect).toHaveBeenCalledWith({ order_id: 1 })
+    })
+
+    const completedRow = screen.getByText('GHI789').closest('.divide-y > div')
+    expect(within(completedRow).queryByRole('button', { name: '$ Cobrar' })).toBeNull()
   })
 
   it('shows empty state when no orders', async () => {

@@ -77,6 +77,7 @@ export const orders = {
   addService: (data) => request('/api/orders?action=add-service', { method: 'POST', body: JSON.stringify(data) }),
   removeService: (id) => request(`/api/orders?action=remove-service&id=${id}`, { method: 'DELETE' }),
   collect: (data) => request('/api/orders?action=collect', { method: 'POST', body: JSON.stringify(data) }),
+  detail: (id) => request(`/api/orders?id=${id}&action=detail`, { method: 'GET' }),
 };
 export const services = createEndpoint('services');
 export const invoices = createEndpoint('invoices');
