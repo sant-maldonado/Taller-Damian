@@ -119,14 +119,14 @@ const fastCreateOrder = requirePermission('orders.create')(async (req, res) => {
       const clientName = (client_name || '').trim() || 'Cliente';
       const clientPhone = (client_phone || '').trim();
       const cRes = await sql`
-        INSERT INTO clients (name, phone, email, created_by)
-        VALUES (${clientName}, ${clientPhone || null}, ${null}, ${req.user.id})
+        INSERT INTO clients (name, phone, email, dni, created_by)
+        VALUES (${clientName}, ${clientPhone || ''}, ${null}, ${''}, ${req.user.id})
         RETURNING id
       `;
 
       const vRes = await sql`
         INSERT INTO vehicles (plate, brand, model, year, client_id, created_by)
-        VALUES (${cleanPlate}, ${brand || null}, ${model || null}, ${year ? parseInt(year) : null}, ${cRes[0].id}, ${req.user.id})
+        VALUES (${cleanPlate}, ${brand || ''}, ${model || ''}, ${year ? parseInt(year, 10) : 0}, ${cRes[0].id}, ${req.user.id})
         RETURNING *
       `;
       vehicle = vRes[0];
