@@ -112,11 +112,11 @@ export default function Users() {
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] font-medium text-white truncate">{u.name}</span>
                     {u.is_active === false && (
-                      <span className="text-[10px] font-medium text-red-400/60 bg-red-400/[0.08] px-1.5 py-0.5 rounded">Inactivo</span>
+                      <span className="text-[11px] font-medium text-red-400/60 bg-red-400/[0.08] px-1.5 py-0.5 rounded">Inactivo</span>
                     )}
                   </div>
                   <div className="flex items-center gap-3 mt-0.5">
-                    <span className="text-[11px] text-white/30">{u.email}</span>
+                    <span className="text-[11px] text-white/30 truncate max-w-[9rem]">{u.email}</span>
                     {u.phone && <><span className="text-[11px] text-white/15">·</span><span className="text-[11px] text-white/30">{u.phone}</span></>}
                   </div>
                 </div>

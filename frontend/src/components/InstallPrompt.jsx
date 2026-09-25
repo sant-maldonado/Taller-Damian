@@ -35,7 +35,7 @@ export default function InstallPrompt() {
           </svg>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] text-white font-medium">Instalar Taller Mecánico</p>
+          <p className="text-[13px] text-white font-medium">Instalar Taller Damian</p>
           <p className="text-[11px] text-white/30">Accedé rápido desde tu pantalla de inicio</p>
         </div>
         <div className="flex gap-2">

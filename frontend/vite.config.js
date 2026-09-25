@@ -8,13 +8,14 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
+      injectRegister: false,
       includeAssets: ['favicon.svg'],
       manifest: false,
       workbox: {
-        globPatterns: ['**/*.{js,css,svg,png,woff2}'],
+        globPatterns: ['**/*.{js,css,svg,png,woff2,html}'],
         cleanupOutdatedCaches: true,
-        navigateFallback: null,
+        navigateFallback: 'index.html',
       }
     })
   ],

@@ -83,3 +83,15 @@
 - **Tests de integración**: Login, Clients, Orders con mocks de api-neon y AuthContext
 - **Tests unitarios**: safeIdent, safeOrder, createCRUD con dependency injection
 - **Build verificado**: vite build exitoso
+
+## Sesion 10: Seguridad + Usuarios + Registro + Branding
+**Horas**: 8h
+- **Fase 1 - Seguridad**: Credenciales admin removidas de Login.jsx, JWT_SECRET rotado (weak fallback eliminado), Neon password rotada, Register endpoint locked a role='client', .env gitignored verificado
+- **Fase 2 - Users Admin Panel**: users/index.js CRUD completo (list/create/update/deactivate), Users.jsx con búsqueda y modal, rutas /users y Sidebar/BottomNav links
+- **Fase 3 - Client Self-Registration**: Register.jsx con DNI, patente, datos vehículo, AuthContext.register(), auth.js handleRegister (transacción user+client+vehicle)
+- **Fase 4 - Branding + Mi Cuenta**: "Taller Mecánico" → "Taller Damian" en Login, Register, Sidebar, manifest, index.html. Account.jsx con perfil y cambio de contraseña. auth.js ?action=change-password
+- **Base limpia**: Datos seed eliminados (solo admin), channel_binding=require removido de DATABASE_URL
+- **.env local sincronizado**: Password y JWT_SECRET actualizados
+- **Testing**: 119 tests, 9 suites (formatters, crud, api-neon, ui-components, Login, Clients, Orders, Users, Register)
+- **API consolidation**: hours→invoices, role→users (12→9 funciones Vercel)
+- **Responsive fixes**: Touch targets, modal overflow, flex-wrap tabs, hidden sm:inline

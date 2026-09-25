@@ -28,7 +28,7 @@ export default function BottomNav() {
   ]
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#080808]/95 backdrop-blur-xl border-t border-white/[0.06]">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#080808]/95 backdrop-blur-xl border-t border-white/[0.06] pb-[env(safe-area-inset-bottom)]">
       <div className={`grid gap-0 ${user?.role === 'client' ? 'grid-cols-4' : user?.role === 'admin' ? 'grid-cols-6' : 'grid-cols-5'}`}>
         {items.map(item => {
           const isActive = location.pathname === item.path
@@ -44,7 +44,7 @@ export default function BottomNav() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
               </svg>
-              <span className={`text-[10px] font-medium transition-colors ${isActive ? 'text-white' : 'text-white/30'}`}>
+              <span className={`text-[11px] font-medium transition-colors ${isActive ? 'text-white' : 'text-white/30'}`}>
                 {item.label}
               </span>
             </Link>
@@ -54,7 +54,7 @@ export default function BottomNav() {
           <svg className="w-5 h-5 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
           </svg>
-          <span className="text-[10px] font-medium text-white/30">Salir</span>
+          <span className="text-[11px] font-medium text-white/30">Salir</span>
         </button>
       </div>
     </nav>

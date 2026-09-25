@@ -217,7 +217,7 @@ export default function VehicleDetail() {
     <div className="max-w-6xl">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/vehicles')} className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors">
+          <button onClick={() => navigate('/vehicles')} className="w-11 h-11 sm:w-8 sm:h-8 rounded-lg bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors">
             <svg className="w-4 h-4 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
           </button>
           <div>
@@ -320,7 +320,7 @@ export default function VehicleDetail() {
               placeholder="Ej: Cambié el aceite y los frenos delanteros..."
               className="input flex-1" disabled={chatLoading} />
             <button onClick={sendChatMessage} disabled={!chatInput.trim() || chatLoading}
-              className="w-10 h-10 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center hover:bg-violet-500/30 transition-colors disabled:opacity-30">
+              className="w-11 h-11 sm:w-10 sm:h-10 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center hover:bg-violet-500/30 transition-colors disabled:opacity-30">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
             </button>
           </div>
@@ -389,13 +389,13 @@ export default function VehicleDetail() {
           {tabs.map(t => (
             <button key={t.key} onClick={() => setStatusFilter(t.key)}
               className={`px-4 py-2 rounded-lg text-[13px] font-medium transition-all ${statusFilter === t.key ? 'bg-white/[0.1] text-white shadow-sm' : 'text-white/30 hover:text-white/50'}`}>
-              {t.label}{t.count > 0 && <span className="ml-1.5 text-[10px] opacity-50">{t.count}</span>}
+              {t.label}{t.count > 0 && <span className="ml-1.5 text-[11px] opacity-50">{t.count}</span>}
             </button>
           ))}
         </div>
 
         <div className="flex items-center gap-2 mt-2 flex-wrap">
-          <div className="flex items-center gap-1 p-1 bg-white/[0.03] rounded-xl">
+          <div className="flex items-center gap-1 p-1 bg-white/[0.03] rounded-xl flex-wrap">
             {datePresets.map(p => (
               <button key={p.key} onClick={() => applyPreset(p.key)}
                 className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${datePreset === p.key ? 'bg-white/[0.1] text-white shadow-sm' : 'text-white/30 hover:text-white/50'}`}>
@@ -404,7 +404,7 @@ export default function VehicleDetail() {
             ))}
           </div>
           {datePreset === 'custom' && (
-            <div className="flex items-center gap-2 animate-in fade-in duration-150">
+            <div className="flex items-center gap-2 animate-in fade-in duration-150 flex-wrap">
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] text-white/25 uppercase tracking-wider">Desde</span>
                 <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}

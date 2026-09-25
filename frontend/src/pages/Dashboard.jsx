@@ -111,12 +111,12 @@ export default function Dashboard() {
             <div className="space-y-2">
               {recentOrders.map((o) => (
                 <div key={o.id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center text-[11px] font-bold text-white/40">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center text-[11px] font-bold text-white/40 shrink-0">
                       {o.plate?.slice(0, 2) || '--'}
                     </div>
-                    <div>
-                      <div className="text-[13px] font-medium text-white">{o.plate || 'N/A'} · {o.brand}</div>
+                    <div className="min-w-0">
+                      <div className="text-[13px] font-medium text-white truncate">{o.plate || 'N/A'} · {o.brand}</div>
                     </div>
                   </div>
                   <StatusBadge status={o.status} />

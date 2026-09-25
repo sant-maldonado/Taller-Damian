@@ -20,10 +20,10 @@ export default function Layout() {
         <Sidebar onNavigate={() => setSidebarOpen(false)} />
       </div>
 
-      <main className="flex-1 min-h-screen pb-20 lg:pb-6 p-4 lg:p-6 overflow-x-hidden">
+      <main className="flex-1 min-h-screen pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-6 p-4 lg:p-6 overflow-x-hidden">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="lg:hidden fixed top-4 left-4 z-30 w-10 h-10 rounded-xl bg-[#0c0c0c] border border-white/[0.08] flex items-center justify-center text-white/50 hover:text-white hover:border-white/[0.15] transition-all"
+          className="lg:hidden fixed top-[calc(1rem+env(safe-area-inset-top))] left-4 z-30 w-10 h-10 rounded-xl bg-[#0c0c0c] border border-white/[0.08] flex items-center justify-center text-white/50 hover:text-white hover:border-white/[0.15] transition-all"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />

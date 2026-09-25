@@ -8,7 +8,7 @@ Scripts reutilizables para generar informes PDF y reportes de sesion.
 
 ```bash
 # Copiar la carpeta dev-scripts a tu proyecto
-cp -r C:\Dev\Proyectos\dev-scripts C:\Dev\TuProyecto\scripts
+cp -r C:\Dev\Proyectos\TallerDamian\interno\dev-scripts C:\Dev\TuProyecto\scripts
 
 # Instalar dependencias
 cd C:\Dev\TuProyecto\scripts
@@ -25,8 +25,8 @@ npm run preguntas    # Genera PDF de preguntas para cliente
 ### Opcion 2: Ejecutar directamente
 
 ```bash
-node C:\Dev\Proyectos\dev-scripts\generar-informe.mjs
-node C:\Dev\Proyectos\dev-scripts\generate-changelog-pdf.cjs
+node C:\Dev\Proyectos\TallerDamian\interno\dev-scripts\generar-informe.mjs
+node C:\Dev\Proyectos\TallerDamian\interno\dev-scripts\generate-changelog-pdf.cjs
 ```
 
 ## Archivos

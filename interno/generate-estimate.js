@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const doc = new PDFDocument({ margin: 50 });
 
-const output = fs.createWriteStream('C:\\Dev\\Proyectos\\TallerDamian\\estimacion-taller-mecanico.pdf');
+const output = fs.createWriteStream('estimacion-taller-mecanico.pdf');
 doc.pipe(output);
 
 // Header

@@ -213,7 +213,7 @@ export default function Orders() {
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] font-semibold text-white font-mono">{o.plate || 'N/A'}</span>
                     <span className="text-[11px] text-white/15">·</span>
-                    <span className="text-[13px] text-white/50">{o.brand} {o.model}</span>
+                    <span className="text-[13px] text-white/50 truncate">{o.brand} {o.model}</span>
                   </div>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-[11px] text-white/25">{formatDate(o.created_at)}</span>
@@ -221,14 +221,14 @@ export default function Orders() {
                 </div>
                 <StatusBadge status={o.status} />
                 {!isClient && (
-                  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                     {['PENDING', 'IN_PROGRESS', 'COMPLETED'].map(s => (
                       <button key={s} onClick={() => ordersApi.update({ id: o.id, status: s }).then(load)}
-                        className={`w-8 h-8 sm:w-6 sm:h-6 rounded-md text-[10px] font-semibold transition-all ${o.status === s ? 'bg-white/[0.15] text-white' : 'bg-white/[0.04] text-white/20 hover:text-white/40 hover:bg-white/[0.08]'}`}>
+                        className={`w-11 h-11 sm:w-6 sm:h-6 rounded-md text-xs sm:text-[10px] font-semibold transition-all ${o.status === s ? 'bg-white/[0.15] text-white' : 'bg-white/[0.04] text-white/20 hover:text-white/40 hover:bg-white/[0.08]'}`}>
                         {s === 'PENDING' ? 'P' : s === 'IN_PROGRESS' ? 'E' : 'C'}
                       </button>
                     ))}
-                    <button onClick={() => { if(confirm('¿Eliminar orden?')) ordersApi.remove(o.id).then(load) }} className="w-8 h-8 sm:w-6 sm:h-6 rounded-md bg-white/[0.04] text-red-400/30 hover:bg-red-500/20 hover:text-red-400 transition-all text-[12px] leading-none">&times;</button>
+                    <button onClick={() => { if(confirm('¿Eliminar orden?')) ordersApi.remove(o.id).then(load) }} className="w-11 h-11 sm:w-6 sm:h-6 rounded-md bg-white/[0.04] text-red-400/30 hover:bg-red-500/20 hover:text-red-400 transition-all text-sm sm:text-[12px] leading-none">&times;</button>
                   </div>
                 )}
               </div>
@@ -255,14 +255,14 @@ export default function Orders() {
                   className="input resize-none flex-1" />
                 <div className="flex flex-col gap-1.5">
                   <button type="button" onClick={handleVoice}
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'bg-white/[0.06] text-white/30 hover:bg-white/[0.1] hover:text-white/50'}`}
+                    className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'bg-white/[0.06] text-white/30 hover:bg-white/[0.1] hover:text-white/50'}`}
                     title={isListening ? 'Detener grabación' : 'Dictar por voz'}>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
                     </svg>
                   </button>
                   <button type="button" onClick={handleAI} disabled={aiLoading || !form.description.trim()}
-                    className="w-9 h-9 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center hover:bg-violet-500/30 transition-all disabled:opacity-30"
+                    className="w-11 h-11 rounded-xl bg-violet-500/20 text-violet-400 flex items-center justify-center hover:bg-violet-500/30 transition-all disabled:opacity-30"
                     title="Mejorar con IA">
                     {aiLoading ? (
                       <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">

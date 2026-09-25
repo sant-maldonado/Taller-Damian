@@ -43,7 +43,7 @@ export default function Invoices() {
   return (
     <div className="max-w-6xl">
       <div className="flex items-center gap-3 mb-6">
-        {isClient && <button onClick={() => navigate('/')} className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors">
+        {isClient && <button onClick={() => navigate('/')} className="w-11 h-11 sm:w-8 sm:h-8 rounded-lg bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors">
           <svg className="w-4 h-4 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
         </button>}
         <div>

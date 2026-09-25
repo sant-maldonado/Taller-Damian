@@ -1,5 +1,5 @@
 # Copiar la carpeta
-cp -r C:\Dev\Proyectos\dev-scripts C:\Dev\TuProyecto\scripts
+cp -r C:\Dev\Proyectos\TallerDamian\interno\dev-scripts C:\Dev\TuProyecto\scripts
 
 # Instalar deps
 cd scripts && npm install

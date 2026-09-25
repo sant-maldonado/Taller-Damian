@@ -66,7 +66,7 @@ export default function Vehicles() {
     <div className="max-w-6xl">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          {isClient && <button onClick={() => navigate('/')} className="w-8 h-8 rounded-lg bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors">
+          {isClient && <button onClick={() => navigate('/')} className="w-11 h-11 sm:w-8 sm:h-8 rounded-lg bg-white/[0.06] flex items-center justify-center hover:bg-white/[0.1] transition-colors">
             <svg className="w-4 h-4 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
           </button>}
           <div>
@@ -104,7 +104,7 @@ export default function Vehicles() {
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] font-semibold text-white font-mono">{v.plate}</span>
                     <span className="text-[11px] text-white/15">·</span>
-                    <span className="text-[13px] text-white/60">{v.brand} {v.model}</span>
+                    <span className="text-[13px] text-white/60 truncate">{v.brand} {v.model}</span>
                     <span className="text-[11px] text-white/15">·</span>
                     <span className="text-[11px] text-white/30">{v.year}</span>
                   </div>
@@ -166,7 +166,7 @@ export default function Vehicles() {
               <Input label="Color" value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} placeholder="Gris" />
               <Input label="VIN" value={form.vin} onChange={(e) => setForm({ ...form, vin: e.target.value })} placeholder="1HGBH41JXMN109186" />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Input label="Kilometraje" type="number" value={form.current_km} onChange={(e) => setForm({ ...form, current_km: e.target.value })} placeholder="85000" />
               <Select label="Motor" value={form.engine_type} onChange={(e) => setForm({ ...form, engine_type: e.target.value })}>
                 <option value="">Sin especificar</option>

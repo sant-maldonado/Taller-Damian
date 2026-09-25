@@ -54,7 +54,7 @@ export default function Register() {
               <input type="text" value={form.name} onChange={update('name')} className="input" placeholder="Juan Pérez" required />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-[11px] font-medium text-white/40 uppercase tracking-wider mb-1.5">DNI</label>
                 <input type="text" value={form.dni} onChange={update('dni')} className="input" placeholder="30123456" required />
@@ -84,7 +84,7 @@ export default function Register() {
               <input type="text" value={form.plate} onChange={update('plate')} className="input" placeholder="ABC 123" required style={{ textTransform: 'uppercase' }} />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-[11px] font-medium text-white/40 uppercase tracking-wider mb-1.5">Marca</label>
                 <input type="text" value={form.brand} onChange={update('brand')} className="input" placeholder="Toyota" />

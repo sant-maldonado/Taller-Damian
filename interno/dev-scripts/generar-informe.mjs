@@ -7,10 +7,10 @@ import { fileURLToPath } from "url";
 // CONFIG — Adaptá esto a tu proyecto
 // ============================================================
 const CONFIG = {
-  projectName: "Taller Mecanico",          // Nombre del proyecto
+  projectName: "Taller Damian",          // Nombre del proyecto
   rootDir: null,                       // null = auto-detecta (carpeta padre de scripts/)
   agentsFile: "AGENTS.md",            // Archivo de log de sesiones
-  testCommand: "echo 'No tests yet'", // Comando de tests
+  testCommand: "cd frontend && npx vitest run --reporter=verbose 2>&1", // Comando de tests
   testTimeout: 60000,                  // Timeout tests (ms)
   autoOpen: true,                      // Abrir HTML al generar
 };

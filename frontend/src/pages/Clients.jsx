@@ -86,7 +86,7 @@ export default function Clients() {
                     <span className="text-[11px] text-white/30">{client.phone}</span>
                     <span className="text-[11px] text-white/15">·</span>
                     <span className="text-[11px] text-white/30 font-mono">{client.dni}</span>
-                    {client.email && <><span className="text-[11px] text-white/15">·</span><span className="text-[11px] text-white/30">{client.email}</span></>}
+                    {client.email && <><span className="text-[11px] text-white/15">·</span><span className="text-[11px] text-white/30 truncate max-w-[10rem]">{client.email}</span></>}
                   </div>
                 </div>
                 {!isClient && (

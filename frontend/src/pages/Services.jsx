@@ -43,7 +43,7 @@ export default function Services() {
                   <div key={svc.id} className="card group p-5 hover:border-white/[0.12] transition-all">
                     <div className="flex items-start justify-between mb-3">
                       <h3 className="text-[13px] font-medium text-white">{svc.name}</h3>
-                      <button onClick={() => handleDelete(svc.id)} className="text-white/15 hover:text-red-400 text-lg leading-none opacity-0 group-hover:opacity-100 transition-all -mt-1">&times;</button>
+                      <button onClick={() => handleDelete(svc.id)} className="p-2 -m-2 text-white/15 hover:text-red-400 text-lg leading-none sm:opacity-0 sm:group-hover:opacity-100 transition-all sm:-mt-1">&times;</button>
                     </div>
                     {svc.description && <p className="text-[12px] text-white/30 mb-3 line-clamp-2">{svc.description}</p>}
                     <div className="text-[15px] font-bold text-white">${parseFloat(svc.default_price).toLocaleString('es-AR')}</div>
