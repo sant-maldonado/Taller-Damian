@@ -488,6 +488,16 @@ export default function VehicleDetail() {
                         <span>{o.notes || ''}</span>
                         <span className="font-semibold text-white/50">{formatCurrency(orderTotal)}</span>
                       </div>
+                      {!isClient && (
+                        <button onClick={async () => {
+                          if (confirm('¿Cobrar esta orden? Se marca como lista y se genera la factura.')) {
+                            await ordersApi.collect({ order_id: o.id })
+                            load()
+                          }
+                        }} className="mt-3 w-full py-2 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/30 transition-all">
+                          $ Cobrar
+                        </button>
+                      )}
                     </div>
                   )
                 })}

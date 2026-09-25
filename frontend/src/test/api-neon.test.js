@@ -159,6 +159,21 @@ describe('orders', () => {
       },
     });
   });
+
+  it('collect(data) sends POST to /api/orders?action=collect', async () => {
+    const data = { order_id: 3 };
+    mockFetchOk({ invoice: { id: 1 }, total: 1000 });
+    await orders.collect(data);
+
+    expect(global.fetch).toHaveBeenCalledWith('/api/orders?action=collect', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer test-token',
+      },
+      body: JSON.stringify(data),
+    });
+  });
 });
 
 describe('vehicles', () => {

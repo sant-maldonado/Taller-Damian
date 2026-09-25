@@ -299,6 +299,12 @@ export default function Orders() {
                       className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${o.status === 'COMPLETED' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/25' : 'bg-white/[0.05] text-white/40 border border-white/[0.06] hover:text-white/70'}`}>
                       Listo
                     </button>
+                    {o.status !== 'COMPLETED' && (
+                      <button onClick={() => { if (confirm('¿Cobrar esta orden? Se marca como lista y se genera la factura.')) ordersApi.collect({ order_id: o.id }).then(load) }}
+                        className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/30 transition-all">
+                        $ Cobrar
+                      </button>
+                    )}
                     <span className="mx-0.5 hidden sm:inline text-white/10">|</span>
                     <button onClick={() => { if(confirm('¿Eliminar orden?')) ordersApi.remove(o.id).then(load) }} className="px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-white/[0.05] text-red-400/40 border border-white/[0.06] hover:bg-red-500/20 hover:text-red-400 transition-all">&times; Eliminar</button>
                   </div>

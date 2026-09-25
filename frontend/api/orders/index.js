@@ -7,6 +7,7 @@ module.exports = async (req, res) => {
   if (req.query.action === 'add-service' && req.method === 'POST') return addService(req, res);
   if (req.query.action === 'remove-service' && req.method === 'DELETE') return removeService(req, res);
   if (req.query.action === 'fast' && req.method === 'POST') return fastCreateOrder(req, res);
+  if (req.query.action === 'collect' && req.method === 'POST') return collectOrder(req, res);
   switch (req.method) {
     case 'GET': return listOrders(req, res);
     case 'POST': return createOrder(req, res);
@@ -224,5 +225,42 @@ const removeService = requirePermission('orders.update')(async (req, res) => {
   } catch (error) {
     console.error('Remove service error:', error);
     return res.status(500).json({ error: 'Error al eliminar servicio' });
+  }
+});
+
+const collectOrder = requirePermission('orders.update')(async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
+  if (req.user.role === 'client') return res.status(403).json({ error: 'No tenés permisos para cobrar' });
+
+  try {
+    const { order_id, total } = req.body;
+    if (!order_id) return res.status(400).json({ error: 'order_id requerido' });
+
+    const [order] = await sql`SELECT * FROM orders WHERE id = ${order_id}`;
+    if (!order) return res.status(404).json({ error: 'Orden no encontrada' });
+
+    const existing = await sql`SELECT id FROM invoices WHERE order_id = ${order_id}`;
+    if (existing.length > 0) return res.status(400).json({ error: 'Esta orden ya tiene factura' });
+
+    let computedTotal = total != null && !isNaN(parseFloat(total)) ? parseFloat(total) : null;
+    if (computedTotal == null) {
+      const agg = await sql`SELECT COALESCE(SUM(price), 0)::numeric AS total FROM order_services WHERE order_id = ${order_id}`;
+      computedTotal = parseFloat(agg[0].total);
+    }
+
+    const invoice = await sql`
+      INSERT INTO invoices (order_id, total, created_by)
+      VALUES (${order_id}, ${computedTotal}, ${req.user.id})
+      RETURNING *
+    `;
+
+    const updated = await sql`
+      UPDATE orders SET status = 'COMPLETED', updated_at = NOW() WHERE id = ${order_id} RETURNING *
+    `;
+
+    return res.status(200).json({ invoice: invoice[0], order: updated[0], total: computedTotal });
+  } catch (error) {
+    console.error('Collect order error:', error);
+    return res.status(500).json({ error: 'Error al cobrar orden' });
   }
 });
