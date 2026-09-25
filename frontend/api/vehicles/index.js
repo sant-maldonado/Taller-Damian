@@ -54,7 +54,7 @@ const listVehicles = requirePermission('vehicles.read')(async (req, res) => {
     }
 
     if (search) {
-      where.push(`(v.brand ILIKE $${idx} OR v.model ILIKE $${idx} OR v.plate ILIKE $${idx} OR v.color ILIKE $${idx})`);
+      where.push(`(v.brand ILIKE $${idx} OR v.model ILIKE $${idx} OR v.plate ILIKE $${idx} OR v.color ILIKE $${idx} OR c.name ILIKE $${idx})`);
       params.push(`%${search}%`);
       idx++;
     }

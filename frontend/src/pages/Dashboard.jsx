@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { clients as clientsApi, vehicles as vehiclesApi, orders as ordersApi, invoices as invoicesApi } from '../services/api-neon'
 import { useAuth } from '../context/AuthContext'
 import { formatCurrency, formatDate, getStatusLabel } from '../utils/formatters'
@@ -8,10 +8,53 @@ import { StatusBadge } from '../components/ui'
 export default function Dashboard() {
   const { user } = useAuth()
   const isClient = user?.role === 'client'
+  const navigate = useNavigate()
   const [stats, setStats] = useState({ clients: 0, vehicles: 0, orders: 0, pending: 0, revenue: 0 })
   const [recentOrders, setRecentOrders] = useState([])
   const [myVehicles, setMyVehicles] = useState([])
   const [myInvoices, setMyInvoices] = useState([])
+  const [gSearch, setGSearch] = useState('')
+  const [gResults, setGResults] = useState([])
+  const [gOpen, setGOpen] = useState(false)
+  const [gLoading, setGLoading] = useState(false)
+  const gTimerRef = useRef(null)
+  const gBoxRef = useRef(null)
+
+  useEffect(() => {
+    function onDocClick(e) {
+      if (gBoxRef.current && !gBoxRef.current.contains(e.target)) setGOpen(false)
+    }
+    document.addEventListener('mousedown', onDocClick)
+    return () => document.removeEventListener('mousedown', onDocClick)
+  }, [])
+
+  async function handleGlobalSearch(value) {
+    setGSearch(value)
+    clearTimeout(gTimerRef.current)
+    const q = value.trim()
+    if (q.length < 2) { setGResults([]); setGOpen(false); return }
+    setGLoading(true)
+    gTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await vehiclesApi.list({ search: q, limit: 8 })
+        setGResults(res.items || [])
+        setGOpen(true)
+      } catch (e) {
+        setGResults([])
+      } finally {
+        setGLoading(false)
+      }
+    }, 300)
+  }
+
+  function handleGlobalKey(e) {
+    if (e.key === 'Enter') {
+      setGOpen(false)
+      if (gResults.length === 1) navigate(`/vehicles/${gResults[0].id}`)
+      else navigate('/vehicles?search=' + encodeURIComponent(gSearch.trim()))
+    }
+    if (e.key === 'Escape') setGOpen(false)
+  }
 
   useEffect(() => { load() }, [])
 
@@ -66,6 +109,39 @@ export default function Dashboard() {
       <div className="mb-8">
         <h1 className="page-title">Dashboard</h1>
         <p className="page-subtitle">Resumen general del taller</p>
+      </div>
+
+      <div className="relative mb-6" ref={gBoxRef}>
+        <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+        <input
+          value={gSearch}
+          onChange={(e) => handleGlobalSearch(e.target.value)}
+          onKeyDown={handleGlobalKey}
+          placeholder="Buscar por patente, marca, modelo o cliente..."
+          className="input pl-10"
+        />
+        {gLoading && (
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4">
+            <div className="w-3.5 h-3.5 border-2 border-sky-500/30 border-t-sky-400 rounded-full animate-spin" />
+          </div>
+        )}
+        {gOpen && (
+          <div className="absolute left-0 right-0 top-full mt-2 bg-[#0e0e0e] border border-white/[0.1] rounded-2xl overflow-hidden shadow-2xl z-20">
+            {gResults.length === 0 ? (
+              <div className="px-4 py-4 text-sm text-white/40">Sin resultados para «{gSearch.trim()}»</div>
+            ) : (
+              <div className="divide-y divide-white/[0.04] max-h-80 overflow-y-auto">
+                {gResults.map(v => (
+                  <button key={v.id} onClick={() => { setGOpen(false); navigate(`/vehicles/${v.id}`) }}
+                    className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-white/[0.05] transition-colors">
+                    <span className="text-[13px] font-semibold text-white font-mono">{v.plate}</span>
+                    <span className="text-[12px] text-white/40 truncate ml-3">{v.brand} {v.model} {v.client_name ? `· ${v.client_name}` : ''}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
