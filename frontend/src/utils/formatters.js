@@ -60,3 +60,18 @@ export function engineLabel(type) {
 export function transLabel(type) {
   return TRANSMISSION_LABELS[type] || type || '—'
 }
+
+export function waLink(phone, text) {
+  let digits = (phone || '').replace(/\D/g, '')
+  if (!digits) return null
+  if (digits.startsWith('549')) {
+    // ok
+  } else if (digits.startsWith('54') && digits[2] !== '9') {
+    digits = digits.slice(0, 2) + '9' + digits.slice(2)
+  } else if (digits.startsWith('9') && digits.length === 11) {
+    digits = '54' + digits
+  } else {
+    digits = '549' + digits
+  }
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text || '')}`
+}

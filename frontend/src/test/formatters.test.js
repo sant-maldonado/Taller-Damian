@@ -7,6 +7,7 @@ import {
   getStatusColor,
   engineLabel,
   transLabel,
+  waLink,
   ENGINE_LABELS,
   TRANSMISSION_LABELS,
 } from '../utils/formatters'
@@ -176,6 +177,32 @@ describe('transLabel', () => {
 
   it('returns em dash for undefined', () => {
     expect(transLabel(undefined)).toBe('—')
+  })
+})
+
+describe('waLink', () => {
+  it('normalizes an AR mobile to 549', () => {
+    expect(waLink('11 4123-4567', 'hola')).toBe('https://wa.me/5491141234567?text=hola')
+  })
+
+  it('keeps a full 549 number', () => {
+    expect(waLink('+54 9 11 4123 4567', 'hola')).toBe('https://wa.me/5491141234567?text=hola')
+  })
+
+  it('inserts the 9 after 54', () => {
+    expect(waLink('541123456789', 'hola')).toBe('https://wa.me/5491123456789?text=hola')
+  })
+
+  it('prepends 54 to an already-9-number', () => {
+    expect(waLink('91142345678', 'hola')).toBe('https://wa.me/5491142345678?text=hola')
+  })
+
+  it('encodes the text', () => {
+    expect(waLink('1141234567', 'a b&c')).toBe('https://wa.me/5491141234567?text=a%20b%26c')
+  })
+
+  it('returns null for empty phone', () => {
+    expect(waLink('', 'hola')).toBeNull()
   })
 })
 
