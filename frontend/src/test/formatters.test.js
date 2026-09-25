@@ -88,16 +88,16 @@ describe('formatHours', () => {
 })
 
 describe('getStatusLabel', () => {
-  it('returns Pendiente for PENDING', () => {
-    expect(getStatusLabel('PENDING')).toBe('Pendiente')
+  it('returns Recibido for PENDING', () => {
+    expect(getStatusLabel('PENDING')).toBe('Recibido')
   })
 
-  it('returns En progreso for IN_PROGRESS', () => {
-    expect(getStatusLabel('IN_PROGRESS')).toBe('En progreso')
+  it('returns En taller for IN_PROGRESS', () => {
+    expect(getStatusLabel('IN_PROGRESS')).toBe('En taller')
   })
 
-  it('returns Completado for COMPLETED', () => {
-    expect(getStatusLabel('COMPLETED')).toBe('Completado')
+  it('returns Listo for COMPLETED', () => {
+    expect(getStatusLabel('COMPLETED')).toBe('Listo')
   })
 
   it('returns Cancelado for CANCELLED', () => {

@@ -96,19 +96,19 @@ describe('EmptyState', () => {
 })
 
 describe('StatusBadge', () => {
-  it('renders Pendiente for PENDING', () => {
+  it('renders Recibido for PENDING', () => {
     render(<StatusBadge status="PENDING" />)
-    expect(screen.getByText('Pendiente')).toBeInTheDocument()
+    expect(screen.getByText('Recibido')).toBeInTheDocument()
   })
 
-  it('renders En progreso for IN_PROGRESS', () => {
+  it('renders En taller for IN_PROGRESS', () => {
     render(<StatusBadge status="IN_PROGRESS" />)
-    expect(screen.getByText('En progreso')).toBeInTheDocument()
+    expect(screen.getByText('En taller')).toBeInTheDocument()
   })
 
-  it('renders Completado for COMPLETED', () => {
+  it('renders Listo for COMPLETED', () => {
     render(<StatusBadge status="COMPLETED" />)
-    expect(screen.getByText('Completado')).toBeInTheDocument()
+    expect(screen.getByText('Listo')).toBeInTheDocument()
   })
 
   it('renders Cancelado for CANCELLED', () => {

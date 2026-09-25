@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { orders as ordersApi, vehicles as vehiclesApi, services as servicesApi, groq as groqApi } from '../services/api-neon'
 import { useAuth } from '../context/AuthContext'
 import { Modal, Input, StatusBadge, EmptyState } from '../components/ui'
@@ -8,13 +8,14 @@ import Loading from '../components/Loading'
 
 const tabs = [
   { key: '', label: 'Todas' },
-  { key: 'PENDING', label: 'Pendientes' },
-  { key: 'IN_PROGRESS', label: 'En progreso' },
-  { key: 'COMPLETED', label: 'Completadas' },
+  { key: 'PENDING', label: 'Recibidos' },
+  { key: 'IN_PROGRESS', label: 'En taller' },
+  { key: 'COMPLETED', label: 'Listos' },
 ]
 
 export default function Orders() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuth()
   const isClient = user?.role === 'client'
   const [orders, setOrders] = useState([])
@@ -36,6 +37,12 @@ export default function Orders() {
   const plateTimerRef = useRef(null)
 
   useEffect(() => { load(); if (!isClient) { loadCatalog(); } }, [])
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('nueva') === '1' && !isClient) openNewModal()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function load() {
     try {
@@ -103,6 +110,10 @@ export default function Orders() {
 
   function removeManualService(index) {
     setManualServices(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function updateStatus(order, status) {
+    ordersApi.update({ id: order.id, status }).then(load)
   }
 
   async function handleSubmit(e) {
@@ -251,30 +262,40 @@ export default function Orders() {
         ) : (
           <div className="divide-y divide-white/[0.04]">
             {orders.map(o => (
-              <div key={o.id} className="flex items-center gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors group cursor-pointer" onClick={() => navigate('/vehicles/' + o.vehicle_id)}>
-                <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center text-[11px] font-bold text-white/40 shrink-0">
-                  {o.plate?.slice(0, 2) || '--'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-semibold text-white font-mono">{o.plate || 'N/A'}</span>
-                    <span className="text-[11px] text-white/15">·</span>
-                    <span className="text-[13px] text-white/50 truncate">{o.brand} {o.model}</span>
+              <div key={o.id} className="px-5 py-4 hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => navigate('/vehicles/' + o.vehicle_id)}>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center text-[11px] font-bold text-white/40 shrink-0">
+                    {o.plate?.slice(0, 2) || '--'}
                   </div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[11px] text-white/25">{formatDate(o.created_at)}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[13px] font-semibold text-white font-mono">{o.plate || 'N/A'}</span>
+                      <span className="text-[11px] text-white/15">·</span>
+                      <span className="text-[13px] text-white/50 truncate">{o.brand} {o.model}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[11px] text-white/25">{formatDate(o.created_at)}</span>
+                      {o.client_name && <span className="text-[11px] text-white/25">· {o.client_name}</span>}
+                    </div>
                   </div>
+                  <StatusBadge status={o.status} />
                 </div>
-                <StatusBadge status={o.status} />
                 {!isClient && (
-                  <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                    {['PENDING', 'IN_PROGRESS', 'COMPLETED'].map(s => (
-                      <button key={s} onClick={() => ordersApi.update({ id: o.id, status: s }).then(load)}
-                        className={`w-11 h-11 sm:w-6 sm:h-6 rounded-md text-xs sm:text-[10px] font-semibold transition-all ${o.status === s ? 'bg-white/[0.15] text-white' : 'bg-white/[0.04] text-white/20 hover:text-white/40 hover:bg-white/[0.08]'}`}>
-                        {s === 'PENDING' ? 'P' : s === 'IN_PROGRESS' ? 'E' : 'C'}
-                      </button>
-                    ))}
-                    <button onClick={() => { if(confirm('¿Eliminar orden?')) ordersApi.remove(o.id).then(load) }} className="w-11 h-11 sm:w-6 sm:h-6 rounded-md bg-white/[0.04] text-red-400/30 hover:bg-red-500/20 hover:text-red-400 transition-all text-sm sm:text-[12px] leading-none">&times;</button>
+                  <div className="flex flex-wrap items-center gap-1.5 mt-3" onClick={(e) => e.stopPropagation()}>
+                    <button onClick={() => updateStatus(o, 'PENDING')}
+                      className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${o.status === 'PENDING' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/25' : 'bg-white/[0.05] text-white/40 border border-white/[0.06] hover:text-white/70'}`}>
+                      Recibido
+                    </button>
+                    <button onClick={() => updateStatus(o, 'IN_PROGRESS')}
+                      className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${o.status === 'IN_PROGRESS' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/25' : 'bg-white/[0.05] text-white/40 border border-white/[0.06] hover:text-white/70'}`}>
+                      En taller
+                    </button>
+                    <button onClick={() => updateStatus(o, 'COMPLETED')}
+                      className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all ${o.status === 'COMPLETED' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/25' : 'bg-white/[0.05] text-white/40 border border-white/[0.06] hover:text-white/70'}`}>
+                      Listo
+                    </button>
+                    <span className="mx-0.5 hidden sm:inline text-white/10">|</span>
+                    <button onClick={() => { if(confirm('¿Eliminar orden?')) ordersApi.remove(o.id).then(load) }} className="px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-white/[0.05] text-red-400/40 border border-white/[0.06] hover:bg-red-500/20 hover:text-red-400 transition-all">&times; Eliminar</button>
                   </div>
                 )}
               </div>

@@ -24,9 +24,9 @@ export function formatHours(hours) {
 
 export function getStatusLabel(status) {
   const statuses = {
-    PENDING: 'Pendiente',
-    IN_PROGRESS: 'En progreso',
-    COMPLETED: 'Completado',
+    PENDING: 'Recibido',
+    IN_PROGRESS: 'En taller',
+    COMPLETED: 'Listo',
     CANCELLED: 'Cancelado'
   }
   return statuses[status] || status

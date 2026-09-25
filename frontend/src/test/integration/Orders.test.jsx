@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '../test-utils'
+import { render, screen, fireEvent, waitFor, within } from '../test-utils'
 
 const mockOrdersList = vi.fn().mockResolvedValue({
   items: [
@@ -96,9 +96,9 @@ describe('Orders integration', () => {
     expect(screen.getByText('Toyota Corolla')).toBeInTheDocument()
     expect(screen.getByText('Honda Civic')).toBeInTheDocument()
     expect(screen.getByText('Ford Focus')).toBeInTheDocument()
-    expect(screen.getByText('Pendiente')).toBeInTheDocument()
-    expect(screen.getAllByText('En progreso').length).toBeGreaterThanOrEqual(1)
-    expect(screen.getByText('Completado')).toBeInTheDocument()
+    expect(screen.getAllByText('Recibido').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('En taller').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText('Listo').length).toBeGreaterThanOrEqual(1)
   })
 
   it('shows loading state initially', async () => {
@@ -120,7 +120,7 @@ describe('Orders integration', () => {
       expect(screen.getByText('ABC123')).toBeInTheDocument()
     })
 
-    const pendientesBtn = screen.getByText('Pendientes')
+    const pendientesBtn = screen.getByText('Recibidos')
     fireEvent.click(pendientesBtn)
 
     await waitFor(() => {
@@ -205,17 +205,17 @@ describe('Orders integration', () => {
     })
   })
 
-  it('clicks P/E/C status buttons and calls orders.update with correct status', async () => {
+  it('click status buttons updates order status with the new labels', async () => {
     render(<Orders />)
     await waitFor(() => {
       expect(screen.getByText('ABC123')).toBeInTheDocument()
     })
 
-    const statusButtons = screen.getAllByText('E')
-    fireEvent.click(statusButtons[0])
+    const defRow = screen.getByText('DEF456').closest('.divide-y > div')
+    fireEvent.click(within(defRow).getByRole('button', { name: 'Listo' }))
 
     await waitFor(() => {
-      expect(mockOrdersUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'IN_PROGRESS' }))
+      expect(mockOrdersUpdate).toHaveBeenCalledWith(expect.objectContaining({ id: 2, status: 'COMPLETED' }))
     })
   })
 
@@ -225,7 +225,7 @@ describe('Orders integration', () => {
       expect(screen.getByText('ABC123')).toBeInTheDocument()
     })
 
-    const deleteButtons = screen.getAllByText('\u00d7')
+    const deleteButtons = screen.getAllByRole('button', { name: /Eliminar/ })
     fireEvent.click(deleteButtons[0])
 
     expect(window.confirm).toHaveBeenCalledWith('¿Eliminar orden?')
