@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { orders as ordersApi, vehicles as vehiclesApi, services as servicesApi, groq as groqApi } from '../services/api-neon'
 import { useAuth } from '../context/AuthContext'
-import { Modal, Input, Select, Textarea, StatusBadge, EmptyState } from '../components/ui'
+import { Modal, Input, StatusBadge, EmptyState } from '../components/ui'
 import { formatDate, formatCurrency } from '../utils/formatters'
 import Loading from '../components/Loading'
 
@@ -18,19 +18,24 @@ export default function Orders() {
   const { user } = useAuth()
   const isClient = user?.role === 'client'
   const [orders, setOrders] = useState([])
-  const [vehicles, setVehicles] = useState([])
   const [catalog, setCatalog] = useState([])
   const [filter, setFilter] = useState('')
   const [loading, setLoading] = useState(true)
   const [showNew, setShowNew] = useState(false)
-  const [form, setForm] = useState({ vehicle_id: '', description: '', mileage: '', notes: '' })
+  const [form, setForm] = useState({ description: '', mileage: '', notes: '' })
+  const [plate, setPlate] = useState('')
+  const [plateMatches, setPlateMatches] = useState([])
+  const [plateSearching, setPlateSearching] = useState(false)
+  const [pickedVehicle, setPickedVehicle] = useState(null)
+  const [newFields, setNewFields] = useState({ ownerName: '', ownerPhone: '', brand: '', model: '', year: '' })
   const [suggestedServices, setSuggestedServices] = useState([])
   const [manualServices, setManualServices] = useState([])
   const [aiLoading, setAiLoading] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const recognitionRef = useRef(null)
+  const plateTimerRef = useRef(null)
 
-  useEffect(() => { load(); if (!isClient) { loadVehicles(); loadCatalog(); } }, [])
+  useEffect(() => { load(); if (!isClient) { loadCatalog(); } }, [])
 
   async function load() {
     try {
@@ -38,13 +43,6 @@ export default function Orders() {
       const res = await ordersApi.list({ status: filter || undefined })
       setOrders(res.items || [])
     } catch(e) { console.error(e) } finally { setLoading(false) }
-  }
-
-  async function loadVehicles() {
-    try {
-      const res = await vehiclesApi.list()
-      setVehicles(res.items || [])
-    } catch(e) { console.error(e) }
   }
 
   async function loadCatalog() {
@@ -57,11 +55,42 @@ export default function Orders() {
   useEffect(() => { load() }, [filter])
 
   function openNewModal() {
-    setForm({ vehicle_id: '', description: '', mileage: '', notes: '' })
+    setForm({ description: '', mileage: '', notes: '' })
+    setPlate('')
+    setPlateMatches([])
+    setPickedVehicle(null)
+    setNewFields({ ownerName: '', ownerPhone: '', brand: '', model: '', year: '' })
     setSuggestedServices([])
     setManualServices([])
-    loadVehicles()
     setShowNew(true)
+  }
+
+  function handlePlateChange(value) {
+    const v = value.toUpperCase()
+    setPlate(v)
+    setPickedVehicle(null)
+    if (!v.trim() || v.trim().length < 2) { setPlateMatches([]); setPlateSearching(false); return }
+
+    setPlateSearching(true)
+    clearTimeout(plateTimerRef.current)
+    plateTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await vehiclesApi.list({ search: v.trim() })
+        setPlateMatches(res.items || [])
+      } catch(e) { setPlateMatches([]) } finally { setPlateSearching(false) }
+    }, 300)
+  }
+
+  function pickVehicle(v) {
+    setPlate(v.plate)
+    setPickedVehicle(v)
+    setPlateMatches([])
+  }
+
+  function clearPickedVehicle() {
+    setPickedVehicle(null)
+    setPlate('')
+    setPlateMatches([])
   }
 
   function addManualService() {
@@ -78,14 +107,31 @@ export default function Orders() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!form.vehicle_id) { alert('Seleccioná un vehículo'); return }
+    if (!plate.trim()) { alert('Ingresá una patente'); return }
     try {
-      const order = await ordersApi.create({
-        vehicle_id: form.vehicle_id,
-        description: form.description || null,
-        mileage: form.mileage ? parseInt(form.mileage) : null,
-        notes: form.notes || null,
-      })
+      let order
+
+      if (pickedVehicle) {
+        order = await ordersApi.create({
+          vehicle_id: pickedVehicle.id,
+          description: form.description || null,
+          mileage: form.mileage ? parseInt(form.mileage) : null,
+          notes: form.notes || null,
+        })
+      } else {
+        const res = await ordersApi.fast({
+          plate: plate.trim(),
+          client_name: newFields.ownerName,
+          client_phone: newFields.ownerPhone,
+          brand: newFields.brand,
+          model: newFields.model,
+          year: newFields.year ? parseInt(newFields.year) : null,
+          description: form.description || null,
+          mileage: form.mileage ? parseInt(form.mileage) : null,
+          notes: form.notes || null,
+        })
+        order = res.order
+      }
 
       const allServices = [
         ...suggestedServices.filter(s => s.checked),
@@ -240,10 +286,68 @@ export default function Orders() {
       {!isClient && (
         <Modal open={showNew} onClose={() => setShowNew(false)} title="Nueva orden de trabajo" wide>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Select label="Vehículo *" value={form.vehicle_id} onChange={(e) => setForm({ ...form, vehicle_id: e.target.value })} required className="bg-white/[0.06] text-white">
-              <option value="">Seleccionar vehículo</option>
-              {vehicles.map(v => <option key={v.id} value={v.id}>{v.plate} — {v.brand} {v.model}</option>)}
-            </Select>
+            <div>
+              <label className="block text-[11px] font-medium text-white/40 uppercase tracking-wider mb-1.5">
+                Patente *
+              </label>
+              <div className="relative">
+                <input
+                  value={plate}
+                  onChange={(e) => handlePlateChange(e.target.value)}
+                  placeholder="ABC123"
+                  autoFocus
+                  className="input font-mono uppercase tracking-wider"
+                />
+                {plateSearching && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4">
+                    <div className="w-3.5 h-3.5 border-2 border-sky-500/30 border-t-sky-400 rounded-full animate-spin" />
+                  </div>
+                )}
+              </div>
+
+              {pickedVehicle ? (
+                <div className="flex items-center justify-between gap-2 mt-2 bg-emerald-500/[0.06] border border-emerald-500/20 rounded-lg px-3 py-2">
+                  <div className="min-w-0">
+                    <span className="text-[13px] font-semibold text-emerald-300 font-mono">{pickedVehicle.plate}</span>
+                    <span className="text-[12px] text-white/40 ml-2">{pickedVehicle.brand} {pickedVehicle.model}</span>
+                    {pickedVehicle.client_name && <span className="text-[11px] text-white/25 ml-2">· {pickedVehicle.client_name}</span>}
+                  </div>
+                  <button type="button" onClick={clearPickedVehicle} className="text-[11px] text-white/30 hover:text-white/60 transition-colors shrink-0">Cambiar</button>
+                </div>
+              ) : (
+                <>
+                  {plateMatches.length > 0 && (
+                    <div className="mt-2 divide-y divide-white/[0.04] border border-white/[0.06] rounded-lg overflow-hidden">
+                      {plateMatches.map(v => (
+                        <button type="button" key={v.id} onClick={() => pickVehicle(v)}
+                          className="w-full flex items-center justify-between px-3 py-2 text-left bg-white/[0.02] hover:bg-white/[0.06] transition-colors">
+                          <span className="text-[13px] text-white font-mono">{v.plate}</span>
+                          <span className="text-[12px] text-white/40 truncate">{v.brand} {v.model} {v.client_name ? `· ${v.client_name}` : ''}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {plate.trim().length >= 3 && plateMatches.length === 0 && !plateSearching && (
+                    <div className="mt-2 bg-white/[0.02] border border-white/[0.06] rounded-lg p-3 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+                        <span className="text-[12px] text-white/50">Vehículo nuevo: se crea con la patente <span className="text-white font-mono">{plate}</span></span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <Input label="Dueño (opcional)" value={newFields.ownerName} onChange={(e) => setNewFields({ ...newFields, ownerName: e.target.value })} placeholder="Nombre" />
+                        <Input label="Teléfono (opcional)" value={newFields.ownerPhone} onChange={(e) => setNewFields({ ...newFields, ownerPhone: e.target.value })} placeholder="+54 11 ..." />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <Input label="Marca (opcional)" value={newFields.brand} onChange={(e) => setNewFields({ ...newFields, brand: e.target.value })} placeholder="Toyota" />
+                        <Input label="Modelo (opcional)" value={newFields.model} onChange={(e) => setNewFields({ ...newFields, model: e.target.value })} placeholder="Corolla" />
+                        <Input label="Año (opcional)" type="number" value={newFields.year} onChange={(e) => setNewFields({ ...newFields, year: e.target.value })} placeholder="2015" />
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
 
             <div>
               <label className="block text-[11px] font-medium text-white/40 uppercase tracking-wider mb-1.5">

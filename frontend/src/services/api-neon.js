@@ -73,6 +73,7 @@ export const vehicles = createEndpoint('vehicles');
 vehicles.history = (id) => request(`/api/vehicles?id=${id}&action=history`);
 export const orders = {
   ...createEndpoint('orders'),
+  fast: (data) => request('/api/orders?action=fast', { method: 'POST', body: JSON.stringify(data) }),
   addService: (data) => request('/api/orders?action=add-service', { method: 'POST', body: JSON.stringify(data) }),
   removeService: (id) => request(`/api/orders?action=remove-service&id=${id}`, { method: 'DELETE' }),
 };

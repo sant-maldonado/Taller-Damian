@@ -10,17 +10,19 @@ const mockOrdersList = vi.fn().mockResolvedValue({
   total: 3,
 })
 const mockOrdersCreate = vi.fn().mockResolvedValue({ id: 4 })
+const mockOrdersFast = vi.fn().mockResolvedValue({ order: { id: 9 }, vehicle: {}, created: true })
 const mockOrdersUpdate = vi.fn().mockResolvedValue({})
 const mockOrdersRemove = vi.fn().mockResolvedValue({})
 const mockOrdersAddService = vi.fn().mockResolvedValue({})
 const mockOrdersRemoveService = vi.fn().mockResolvedValue({})
 
-const mockVehiclesList = vi.fn().mockResolvedValue({
-  items: [
+const mockVehiclesList = vi.fn().mockImplementation(({ search } = {}) => {
+  const all = [
     { id: 1, plate: 'ABC123', brand: 'Toyota', model: 'Corolla' },
     { id: 2, plate: 'DEF456', brand: 'Honda', model: 'Civic' },
-  ],
-  total: 2,
+  ]
+  const items = search ? all.filter(v => v.plate.toLowerCase().includes(search.toLowerCase())) : all
+  return Promise.resolve({ items, total: items.length })
 })
 
 const mockServicesList = vi.fn().mockResolvedValue({
@@ -41,6 +43,7 @@ vi.mock('../../services/api-neon', () => ({
   orders: {
     list: (...args) => mockOrdersList(...args),
     create: (...args) => mockOrdersCreate(...args),
+    fast: (...args) => mockOrdersFast(...args),
     update: (...args) => mockOrdersUpdate(...args),
     remove: (...args) => mockOrdersRemove(...args),
     addService: (...args) => mockOrdersAddService(...args),
@@ -67,13 +70,15 @@ describe('Orders integration', () => {
       ],
       total: 3,
     })
-    mockVehiclesList.mockResolvedValue({
-      items: [
+    mockVehiclesList.mockImplementation(({ search } = {}) => {
+      const all = [
         { id: 1, plate: 'ABC123', brand: 'Toyota', model: 'Corolla' },
         { id: 2, plate: 'DEF456', brand: 'Honda', model: 'Civic' },
-      ],
-      total: 2,
+      ]
+      const items = search ? all.filter(v => v.plate.toLowerCase().includes(search.toLowerCase())) : all
+      return Promise.resolve({ items, total: items.length })
     })
+    mockOrdersFast.mockResolvedValue({ order: { id: 9 }, vehicle: {}, created: true })
     mockServicesList.mockResolvedValue({
       items: [{ id: 1, name: 'Cambio de aceite', price: 5000 }],
       total: 1,
@@ -134,11 +139,11 @@ describe('Orders integration', () => {
     await waitFor(() => {
       expect(screen.getByText('Nueva orden de trabajo')).toBeInTheDocument()
     })
-    expect(screen.getByText('Seleccionar vehículo')).toBeInTheDocument()
+    expect(screen.getByText('Patente *')).toBeInTheDocument()
     expect(screen.getByText('Crear orden')).toBeInTheDocument()
   })
 
-  it('selects vehicle and submits to create order', async () => {
+  it('creates an order for an existing vehicle by picking it from plate search', async () => {
     render(<Orders />)
     await waitFor(() => {
       expect(screen.getByText('ABC123')).toBeInTheDocument()
@@ -149,14 +154,53 @@ describe('Orders integration', () => {
       expect(screen.getByText('Nueva orden de trabajo')).toBeInTheDocument()
     })
 
-    const select = screen.getByRole('combobox')
-    fireEvent.change(select, { target: { value: '1' } })
+    const plateInput = screen.getByPlaceholderText('ABC123')
+    fireEvent.change(plateInput, { target: { value: 'ABC123' } })
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Corolla/ })).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /Corolla/ }))
+    await waitFor(() => {
+      expect(screen.getByText(/Cambiar/)).toBeInTheDocument()
+    })
 
     fireEvent.click(screen.getByText('Crear orden'))
 
     await waitFor(() => {
       expect(mockOrdersCreate).toHaveBeenCalledWith(
-        expect.objectContaining({ vehicle_id: '1' })
+        expect.objectContaining({ vehicle_id: 1 })
+      )
+    })
+  })
+
+  it('creates an order for a new plate via fast create with optional fields', async () => {
+    render(<Orders />)
+    await waitFor(() => {
+      expect(screen.getByText('ABC123')).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByText('+ Nueva orden'))
+    await waitFor(() => {
+      expect(screen.getByText('Nueva orden de trabajo')).toBeInTheDocument()
+    })
+
+    const plateInput = screen.getByPlaceholderText('ABC123')
+    fireEvent.change(plateInput, { target: { value: 'ZZZ999' } })
+
+    await waitFor(() => {
+      expect(screen.getByText(/Vehículo nuevo/)).toBeInTheDocument()
+    })
+
+    const ownerInput = screen.getByPlaceholderText('Nombre')
+    fireEvent.change(ownerInput, { target: { value: 'Pepe' } })
+
+    fireEvent.click(screen.getByText('Crear orden'))
+
+    await waitFor(() => {
+      expect(mockOrdersFast).toHaveBeenCalledWith(
+        expect.objectContaining({ plate: 'ZZZ999', client_name: 'Pepe' })
       )
     })
   })

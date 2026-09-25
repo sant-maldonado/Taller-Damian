@@ -6,6 +6,7 @@ const sql = neon(process.env.DATABASE_URL);
 module.exports = async (req, res) => {
   if (req.query.action === 'add-service' && req.method === 'POST') return addService(req, res);
   if (req.query.action === 'remove-service' && req.method === 'DELETE') return removeService(req, res);
+  if (req.query.action === 'fast' && req.method === 'POST') return fastCreateOrder(req, res);
   switch (req.method) {
     case 'GET': return listOrders(req, res);
     case 'POST': return createOrder(req, res);
@@ -51,7 +52,11 @@ const listOrders = requirePermission('orders.read')(async (req, res) => {
     }
 
     const whereClause = where.length > 0 ? `WHERE ${where.join(' AND ')}` : '';
-    const baseQuery = `SELECT o.*, v.brand, v.model, v.plate FROM orders o JOIN vehicles v ON v.id = o.vehicle_id ${whereClause} ORDER BY o.created_at DESC LIMIT ${lim} OFFSET ${off}`;
+    const baseQuery = `SELECT o.*, v.brand, v.model, v.plate, c.name AS client_name, c.phone AS client_phone
+      FROM orders o
+      JOIN vehicles v ON v.id = o.vehicle_id
+      LEFT JOIN clients c ON c.id = v.client_id
+      ${whereClause} ORDER BY o.created_at DESC LIMIT ${lim} OFFSET ${off}`;
 
     const items = params.length > 0
       ? await sql.query(baseQuery, params)
@@ -83,6 +88,60 @@ const createOrder = requirePermission('orders.create')(async (req, res) => {
     return res.status(201).json(result[0]);
   } catch (error) {
     console.error('Create order error:', error);
+    return res.status(500).json({ error: 'Error al crear orden' });
+  }
+});
+
+const fastCreateOrder = requirePermission('orders.create')(async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
+  if (req.user.role === 'client') return res.status(403).json({ error: 'No tenés permisos para crear' });
+
+  try {
+    const { plate, client_name, client_phone, brand, model, year, description, mileage, notes } = req.body;
+    if (!plate || !plate.trim()) return res.status(400).json({ error: 'Patente es requerida' });
+
+    const cleanPlate = plate.trim().toUpperCase().replace(/\s/g, '');
+
+    const existing = await sql`
+      SELECT v.*, c.id AS client_id, c.name AS client_name, c.phone AS client_phone
+      FROM vehicles v
+      LEFT JOIN clients c ON c.id = v.client_id
+      WHERE UPPER(REPLACE(v.plate, ' ', '')) = ${cleanPlate}
+      LIMIT 1
+    `;
+
+    let vehicle;
+    let created = false;
+
+    if (existing.length > 0) {
+      vehicle = existing[0];
+    } else {
+      const clientName = (client_name || '').trim() || 'Cliente';
+      const clientPhone = (client_phone || '').trim();
+      const cRes = await sql`
+        INSERT INTO clients (name, phone, email, created_by)
+        VALUES (${clientName}, ${clientPhone || null}, ${null}, ${req.user.id})
+        RETURNING id
+      `;
+
+      const vRes = await sql`
+        INSERT INTO vehicles (plate, brand, model, year, client_id, created_by)
+        VALUES (${cleanPlate}, ${brand || null}, ${model || null}, ${year ? parseInt(year) : null}, ${cRes[0].id}, ${req.user.id})
+        RETURNING *
+      `;
+      vehicle = vRes[0];
+      created = true;
+    }
+
+    const oRes = await sql`
+      INSERT INTO orders (vehicle_id, status, description, mileage, notes, created_by)
+      VALUES (${vehicle.id}, 'PENDING', ${description || null}, ${mileage || null}, ${notes || null}, ${req.user.id})
+      RETURNING *
+    `;
+
+    return res.status(201).json({ order: oRes[0], vehicle, created });
+  } catch (error) {
+    console.error('Fast order error:', error);
     return res.status(500).json({ error: 'Error al crear orden' });
   }
 });
