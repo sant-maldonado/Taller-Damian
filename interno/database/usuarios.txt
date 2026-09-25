@@ -8,13 +8,11 @@ ROL: ADMIN
 ------------------------------------------------------------
 admin@taller.com          | Administrador   | +54 11 5555-0001
 
-ROL: CLIENT (-login con DNI)
+ROL: CLIENT (login por email, DNI o patente)
 ------------------------------------------------------------
-30123456                  | Martín López     | +54 11 6666-0001
-30234567                  | Lucía García     | +54 11 6666-0002
-30345678                  | Fernando Ruiz    | +54 11 6666-0003
-30456789                  | Camila Torres    | +54 11 6666-0004
-30567890                  | Rodrigo Díaz     | +54 11 6666-0005
+cliente.prueba@test.com   | Cliente de Prueba  | +54 11 7777-0001
+DNI: 40123456
+Patente vehículo: KLM445 (Renault Clio 2015)
 
 ============================================================
 PERMISOS POR ROL

@@ -95,3 +95,16 @@
 - **Testing**: 119 tests, 9 suites (formatters, crud, api-neon, ui-components, Login, Clients, Orders, Users, Register)
 - **API consolidation**: hours→invoices, role→users (12→9 funciones Vercel)
 - **Responsive fixes**: Touch targets, modal overflow, flex-wrap tabs, hidden sm:inline
+
+## Sesion 11: PWA + Responsive iPhone + Reestructura + Update Prompt
+**Horas**: 6h
+- **Base de datos limpia**: Datos seed eliminados (solo queda admin@taller.com), sincronizado .env local (password + JWT_SECRET)
+- **Informes PDF**: informe-sesion (HTML/PDF), informe-mejoras.pdf, preguntas-para-cliente.pdf generados; CONFIG de los 4 scripts actualizada con datos reales
+- **Reestructura repo**: Todo lo no-código movido a interno/ (AGENTS.md, database/, dev-scripts/, scripts viejos, node_modules, PDFs). Raíz = frontend/ + interno/. Scripts y README con rutas nuevas
+- **PWA fixes**: Íconos PNG (192/512/apple-touch 180), offline shell (navigateFallback index.html + html en globPatterns), branding InstallPrompt ("Instalar Taller Damian"), meta-description, viewport-fit=cover
+- **Responsive iPhone**: safe areas (viewport-fit, BottomNav, Layout, Modal items-end + max-h-85dvh), touch targets 44px (P/E/C/mic/IA/back/X/send/ghost), truncate en listas, grids responsive, fuentes 10→11px
+- **Verificacion mobile**: 0 overflow horizontal en 375px (iPhone SE) y 430px en todas las páginas (auditoria con Chromium headless)
+- **Update banner (registerType prompt)**: vite.config registerType 'prompt' + injectRegister false, src/lib/pwa.js (eventos need-refresh/update-request), main.jsx registerSW, componente UpdatePrompt.jsx ("Nueva versión disponible — Actualizar"), header Cache-Control fresh en vercel.json
+- **Deploy automatico confirmado**: Proyecto Vercel conectado a GitHub (master), cada push hace auto-deploy. Commit 160070b + push → deploy success verificado en producción (manifest, íconos, sw.js, /orders 200)
+- **Verificacion producción**: HTML con viewport-fit/apple-touch/manifest, sw.js solo skip condicional (SKIP_WAITING msg), Cache-Control max-age=0 must-revalidate
+- **Testing**: 124 tests, 10 suites (+5 UpdatePrompt: aparece banner, Actualizar pide update, Ahora no, sesión rechazo)
